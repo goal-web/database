@@ -39,7 +39,7 @@ func FromModel(model contracts.Model) *Table {
 // WithConnection 使用指定链接
 func WithConnection(name string, connection interface{}) *Table {
 	if connection == "" || connection == nil {
-		return getTable(name)
+		return Query(name)
 	}
 	return getTable(name).SetConnection(connection)
 }

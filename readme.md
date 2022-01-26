@@ -119,7 +119,7 @@ import (
 	"fmt"
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/database/table"
-	"github.com/goal-web/goal/example/models"
+	"github.com/goal-web/example/models"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -208,8 +208,8 @@ func TestModel(t *testing.T) {
 ```
 > 更多查询构造器用法请移步 [goal-web/querybuilder](https://github.com/goal-web/querybuilder)
 
-## 在 goal 之外的框架使用 - use in frameworks other than goal
-略
+### 在 goal 之外的框架使用 - use in frameworks other than goal
+这部分内容比较多，这里暂时不展开讲，后面会专门录视频介绍，欢迎大家点赞订阅
 
 
 [goal-web](https://github.com/goal-web/goal)  

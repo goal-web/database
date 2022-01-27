@@ -1,4 +1,5 @@
 # Goal-web/collection
+[goal-web/database](https://github.com/goal-web/database)  
 goal 框架的数据库组件，当然你也可以在 goal 之外的框架使用他。
 > 目前数据库组件暂时不能使用关联关系，你可以用 `WhereExists` 来代替
 
@@ -10,17 +11,16 @@ go get github.com/goal-web/database
 ## 使用 - usage
 goal 的脚手架自带了绝大多数开发一个 web 应用的所需要的功能和组件，当然包括了数据库组件。一般情况下，我们只需要在 .env 修改自己的数据库配置即可，添加数据库连接可以 `config/database.go` 修改 `Connections` 属性。
 
-### 配置 config
+### 配置 - config
 默认情况下，`config/database.go` 配置文件像下面那样，默认添加了 sqlite、MySQL、postgresSql 三个数据库连接的配置
 > 和 `Laravel` 不同的是，goal 把 redis 配置独立出去了，因为 redis 也是一个独立的模块，不想让 redis 依赖 database
+
 ```go
 package config
-
 import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/database"
 )
-
 func init() {
 	configs["database"] = func(env contracts.Env) interface{} {
 		return database.Config{
@@ -63,9 +63,10 @@ func init() {
 		}
 	}
 }
-
 ```
+
 `.env` 的数据库相关配置
+
 ```bash
 # 默认连接
 db.connection=sqlite

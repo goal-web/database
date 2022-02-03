@@ -6,7 +6,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/goal-web/application v0.1.0
 	github.com/goal-web/collection v0.1.4
-	github.com/goal-web/contracts v0.1.20
+	github.com/goal-web/contracts v0.1.27
 	github.com/goal-web/querybuilder v0.1.12
 	github.com/goal-web/supports v0.1.11
 	github.com/jmoiron/sqlx v1.3.4

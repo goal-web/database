@@ -18,18 +18,6 @@ func (this *Table) Get() contracts.Collection {
 	if this.class == nil {
 		return rows
 	}
-	// 返回指定的 Collection<Class>
-	//results := reflect.MakeSlice(reflect.SliceOf(this.class.Type), 0, 0)
-	//fmt.Println(results, utils.GetTypeKey(reflect.TypeOf(results)))
-	//err := this.getExecutor().Select(&results, sql, bindings...)
-
-	//if err != nil {
-	//	panic(SelectException{exceptions.WithError(err, contracts.Fields{
-	//		"sql":      sql,
-	//		"bindings": bindings,
-	//		"model":    this.class.ClassName(),
-	//	})})
-	//}
 
 	return rows.Map(func(fields contracts.Fields) interface{} {
 		return this.class.New(fields)

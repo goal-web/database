@@ -33,7 +33,7 @@ func Query(name string) *Table {
 }
 
 func FromModel(model contracts.Model) *Table {
-	return WithConnection(model.GetTable(), model.GetConnection()).SetClass(model.GetClass())
+	return WithConnection(model.GetTable(), model.GetConnection()).SetClass(model.GetClass()).SetPrimaryKey(model.GetPrimaryKey())
 }
 
 // WithConnection 使用指定链接

@@ -1,4 +1,4 @@
-# Goal-web/collection
+# Goal-web/database
 [goal-web/database](https://github.com/goal-web/database)  
 goal 框架的数据库组件，当然你也可以在 goal 之外的框架使用他。
 > 目前数据库组件暂时不能使用关联关系，你可以用 `WhereExists` 来代替

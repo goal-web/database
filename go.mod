@@ -15,9 +15,15 @@ require (
 )
 
 require (
+	github.com/ClickHouse/clickhouse-go/v2 v2.0.9 // indirect
 	github.com/apex/log v1.9.0 // indirect
 	github.com/goal-web/container v0.1.3 // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/paulmach/orb v0.4.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/qbhy/parallel v1.3.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
+	go.opentelemetry.io/otel v1.3.0 // indirect
+	go.opentelemetry.io/otel/trace v1.3.0 // indirect
 )

@@ -16,9 +16,10 @@ func (this *ServiceProvider) Register(application contracts.Application) {
 			dbConfig:    config.Get("database").(Config),
 			connections: make(map[string]contracts.DBConnection),
 			drivers: map[string]contracts.DBConnector{
-				"mysql":    drivers.MysqlConnector,
-				"postgres": drivers.PostgresSqlConnector,
-				"sqlite":   drivers.SqliteConnector,
+				"mysql":      drivers.MysqlConnector,
+				"postgres":   drivers.PostgresSqlConnector,
+				"sqlite":     drivers.SqliteConnector,
+				"clickhouse": drivers.ClickHouseConnector,
 			},
 		}
 	})

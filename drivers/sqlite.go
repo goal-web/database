@@ -19,5 +19,5 @@ func SqliteConnector(config contracts.Fields, events contracts.EventDispatcher) 
 		logs.WithError(err).WithField("config", config).Fatal("sqlite 数据库初始化失败")
 	}
 
-	return &Sqlite{&Base{db, events}}
+	return &Sqlite{NewDriver(db, events)}
 }

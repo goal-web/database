@@ -32,5 +32,5 @@ func MysqlConnector(config contracts.Fields, events contracts.EventDispatcher) c
 	db.SetMaxOpenConns(utils.GetIntField(config, "max_connections"))
 	db.SetMaxIdleConns(utils.GetIntField(config, "max_idles"))
 
-	return &Mysql{&Base{db, events}}
+	return &Mysql{NewDriver(db, events)}
 }

@@ -20,7 +20,7 @@ func (this *Table) Get() contracts.Collection {
 	}
 
 	return rows.Map(func(fields contracts.Fields) interface{} {
-		return this.class.New(fields)
+		return this.class.NewByTag(fields, "db")
 	})
 }
 

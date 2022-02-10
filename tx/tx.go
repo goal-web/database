@@ -1,43 +1,29 @@
 package tx
 
 import (
-	"github.com/goal-web/collection"
 	"github.com/goal-web/contracts"
-	"github.com/goal-web/database/events"
-	"github.com/goal-web/database/table"
+	"github.com/goal-web/database/support"
 	"github.com/jmoiron/sqlx"
 )
 
 type Tx struct {
-	*sqlx.Tx
+	tx *sqlx.Tx
+	support.Executor
 	events contracts.EventDispatcher
 }
 
-func New(tx *sqlx.Tx, events contracts.EventDispatcher) *Tx {
+func (t *Tx) Commit() error {
+	return t.tx.Commit()
+}
+
+func (t Tx) Rollback() error {
+	return t.tx.Rollback()
+}
+
+func New(tx *sqlx.Tx, events contracts.EventDispatcher) contracts.DBTx {
 	return &Tx{
-		Tx:     tx,
-		events: events,
+		tx:       tx,
+		Executor: support.NewExecutor(tx, events),
+		events:   events,
 	}
-}
-
-func (this *Tx) Query(query string, args ...interface{}) (results contracts.Collection, err error) {
-	defer func() {
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args})
-		}
-	}()
-	rows, err := this.Tx.Query(query, args...)
-
-	if err != nil {
-		return nil, err
-	}
-
-	data, err := table.ParseRows(rows)
-	results = collection.FromFieldsSlice(data)
-
-	return
-}
-
-func (this *Tx) Exec(query string, args ...interface{}) (contracts.Result, error) {
-	return this.Tx.Exec(query, args...)
 }

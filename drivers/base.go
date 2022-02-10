@@ -1,61 +1,30 @@
 package drivers
 
 import (
-	"github.com/goal-web/collection"
 	"github.com/goal-web/contracts"
-	"github.com/goal-web/database/events"
 	exceptions2 "github.com/goal-web/database/exceptions"
-	"github.com/goal-web/database/table"
+	"github.com/goal-web/database/support"
 	"github.com/goal-web/database/tx"
 	"github.com/goal-web/supports/exceptions"
 	"github.com/jmoiron/sqlx"
 )
 
 type Base struct {
-	*sqlx.DB
+	support.Executor
+	db     *sqlx.DB
 	events contracts.EventDispatcher
 }
 
-func (this *Base) Query(query string, args ...interface{}) (results contracts.Collection, err error) {
-	defer func() {
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args})
-		}
-	}()
-	rows, err := this.DB.Query(query, args...)
-
-	if err != nil {
-		return nil, err
+func NewDriver(db *sqlx.DB, dispatcher contracts.EventDispatcher) *Base {
+	return &Base{
+		db:       db,
+		Executor: support.NewExecutor(db, dispatcher),
+		events:   dispatcher,
 	}
-
-	data, err := table.ParseRows(rows)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return collection.FromFieldsSlice(data), nil
-}
-
-func (this *Base) Get(dest interface{}, query string, args ...interface{}) (err error) {
-	defer func() {
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args})
-		}
-	}()
-	return this.DB.Get(dest, query, args...)
-}
-func (this *Base) Select(dest interface{}, query string, args ...interface{}) (err error) {
-	defer func() {
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args})
-		}
-	}()
-	return this.DB.Get(dest, query, args...)
 }
 
 func (this *Base) Begin() (contracts.DBTx, error) {
-	sqlxTx, err := this.DB.Beginx()
+	sqlxTx, err := this.db.Beginx()
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +60,4 @@ func (this *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err erro
 	}
 
 	return sqlxTx.Commit()
-}
-
-func (this *Base) Exec(query string, args ...interface{}) (result contracts.Result, err error) {
-	defer func() {
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args})
-		}
-	}()
-	return this.DB.Exec(query, args...)
 }

@@ -28,5 +28,5 @@ func PostgresSqlConnector(config contracts.Fields, events contracts.EventDispatc
 	db.SetMaxOpenConns(utils.GetIntField(config, "max_connections"))
 	db.SetMaxIdleConns(utils.GetIntField(config, "max_idles"))
 
-	return &PostgresSQL{&Base{db, events}}
+	return &PostgresSQL{NewDriver(db, events)}
 }

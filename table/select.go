@@ -6,12 +6,10 @@ import (
 	"github.com/goal-web/supports/exceptions"
 )
 
-func (this *Table) Get() contracts.Collection {
-	sql, bindings := this.SelectSql()
-
-	rows, err := this.getExecutor().Query(sql, bindings...)
+func (this *Table) fetch(query string, bindings ...interface{}) contracts.Collection {
+	rows, err := this.getExecutor().Query(query, bindings...)
 	if err != nil {
-		panic(SelectException{exceptions.WithError(err, contracts.Fields{"sql": sql, "bindings": bindings})})
+		panic(SelectException{exceptions.WithError(err, contracts.Fields{"sql": query, "bindings": bindings})})
 	}
 
 	// 返回 Collection<fields>
@@ -22,6 +20,18 @@ func (this *Table) Get() contracts.Collection {
 	return rows.Map(func(fields contracts.Fields) interface{} {
 		return this.class.NewByTag(fields, "db")
 	})
+}
+
+func (this *Table) Get() contracts.Collection {
+	sql, bindings := this.SelectForUpdateSql()
+
+	return this.fetch(sql, bindings...)
+}
+
+func (this *Table) SelectForUpdate() contracts.Collection {
+	sql, bindings := this.SelectSql()
+
+	return this.fetch(sql, bindings...)
 }
 
 func (this *Table) Find(key interface{}) interface{} {

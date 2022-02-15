@@ -16,11 +16,11 @@ type Factory struct {
 
 func (this *Factory) Connection(name ...string) contracts.DBConnection {
 	connection := this.dbConfig.Default
-	if len(name) > 0 {
+	if len(name) > 0 && name[0] != "" {
 		connection = name[0]
 	}
-	if connection, existsConnection := this.connections[connection]; existsConnection {
-		return connection
+	if conn, existsConnection := this.connections[connection]; existsConnection {
+		return conn
 	}
 
 	this.connections[connection] = this.make(connection)

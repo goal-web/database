@@ -23,13 +23,13 @@ func (this *Table) fetch(query string, bindings ...interface{}) contracts.Collec
 }
 
 func (this *Table) Get() contracts.Collection {
-	sql, bindings := this.SelectForUpdateSql()
+	sql, bindings := this.SelectSql()
 
 	return this.fetch(sql, bindings...)
 }
 
 func (this *Table) SelectForUpdate() contracts.Collection {
-	sql, bindings := this.SelectSql()
+	sql, bindings := this.SelectForUpdateSql()
 
 	return this.fetch(sql, bindings...)
 }

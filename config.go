@@ -7,4 +7,5 @@ import (
 type Config struct {
 	Default     string
 	Connections map[string]contracts.Fields
+	Migrations  string
 }

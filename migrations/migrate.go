@@ -34,7 +34,8 @@ var MustForceErr = errors.New("use the force option in production")
 
 func (this *migrate) Handle() interface{} {
 	if this.production && !this.GetBool("force") {
-		panic(MustForceErr)
+		logs.WithError(MustForceErr).Error("refresh.Handle: ")
+		return MustForceErr
 	}
 
 	var (
@@ -67,7 +68,9 @@ func (this *migrate) Handle() interface{} {
 		}
 	}
 
-	logs.Default().Info("migrate.Handle: No migration was performed")
+	if executedNum == 0 {
+		logs.Default().Info("migrate.Handle: No migration was performed")
+	}
 
 	return nil
 }

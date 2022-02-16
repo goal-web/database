@@ -31,7 +31,8 @@ type rollback struct {
 
 func (this *rollback) Handle() interface{} {
 	if this.production && !this.GetBool("force") {
-		panic(MustForceErr)
+		logs.WithError(MustForceErr).Error("refresh.Handle: ")
+		return MustForceErr
 	}
 
 	var (
@@ -54,7 +55,10 @@ func (this *rollback) Handle() interface{} {
 				panic(err)
 			}
 			logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacked", migration.Name))
-			table.WithConnection(this.table, conn).Where("id", item["id"]).Delete()
+			table.WithConnection(this.table, conn).
+				Where("migration", item["migration"]).
+				Where("batch", item["batch"]).
+				Delete()
 		} else {
 			logs.Default().Warn(fmt.Sprintf("rollback.Handle: migration %s is not exists", migration.Name))
 		}

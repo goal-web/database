@@ -41,6 +41,9 @@ func (this *ServiceProvider) Register(application contracts.Application) {
 	application.Call(func(console contracts.Console) {
 		console.RegisterCommand("migrate", migrations.Migrate)
 		console.RegisterCommand("migrate:rollback", migrations.Rollback)
+		console.RegisterCommand("migrate:refresh", migrations.Refresh)
+		console.RegisterCommand("migrate:reset", migrations.Reset)
+		console.RegisterCommand("migrate:status", migrations.Status)
 	})
 }
 

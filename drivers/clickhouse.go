@@ -14,8 +14,23 @@ type Clickhouse struct {
 	*Base
 }
 
+func paramBindWrapper(sql string) (result string) {
+	var (
+		parts    = strings.Split(sql, "?")
+		partsLen = len(parts)
+	)
+	if partsLen == 1 {
+		return sql
+	}
+	result = parts[0]
+	for i := 1; i < partsLen; i++ {
+		result = fmt.Sprintf("%s$%d%s", result, i, parts[i])
+	}
+	return
+}
+
 func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatcher) contracts.DBConnection {
-	dsn := utils.GetStringField(config, "dsn")
+	var dsn = utils.GetStringField(config, "dsn")
 	if dsn == "" {
 		address := config["address"].([]string)
 		dsn = fmt.Sprintf("tcp://%s?debug=%s",
@@ -24,9 +39,20 @@ func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatch
 			config["debug"].(string),
 		)
 		if config["username"] != "" {
-			dsn = fmt.Sprintf("%s&username=%s&password=%s",
+			dsn = fmt.Sprintf("%s&username=%s",
 				dsn,
 				config["username"].(string),
+			)
+		}
+		if config["database"] != "" {
+			dsn = fmt.Sprintf("%s&database=%s",
+				dsn,
+				config["database"].(string),
+			)
+		}
+		if config["password"] != "" {
+			dsn = fmt.Sprintf("%s&password=%s",
+				dsn,
 				config["password"].(string),
 			)
 		}
@@ -40,5 +66,5 @@ func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatch
 	}
 	db.SetMaxOpenConns(utils.GetIntField(config, "max_connections"))
 	db.SetMaxIdleConns(utils.GetIntField(config, "max_idles"))
-	return &Clickhouse{NewDriver(db, events)}
+	return &Clickhouse{WithWrapper(db, events, paramBindWrapper)}
 }

@@ -10,20 +10,30 @@ import (
 type BaseExecutor struct {
 	executor SqlxExecutor
 	events   contracts.EventDispatcher
+	wrapper  func(sql string) string
 }
 
 func (this *BaseExecutor) DriverName() string {
 	return this.executor.DriverName()
 }
 
-func NewExecutor(executor SqlxExecutor, dispatcher contracts.EventDispatcher) Executor {
+func (this *BaseExecutor) getStatement(sql string) string {
+	if this.wrapper != nil {
+		return this.wrapper(sql)
+	}
+	return sql
+}
+
+func NewExecutor(executor SqlxExecutor, dispatcher contracts.EventDispatcher, wrapper func(sql string) string) Executor {
 	return &BaseExecutor{
 		executor: executor,
 		events:   dispatcher,
+		wrapper:  wrapper,
 	}
 }
 
 func (this *BaseExecutor) Query(query string, args ...interface{}) (results contracts.Collection, err error) {
+	query = this.getStatement(query)
 	var timeConsuming time.Duration
 	defer func() {
 		if err == nil {
@@ -44,6 +54,7 @@ func (this *BaseExecutor) Query(query string, args ...interface{}) (results cont
 }
 
 func (this *BaseExecutor) Get(dest interface{}, query string, args ...interface{}) (err error) {
+	query = this.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
@@ -57,6 +68,7 @@ func (this *BaseExecutor) Get(dest interface{}, query string, args ...interface{
 }
 
 func (this *BaseExecutor) Select(dest interface{}, query string, args ...interface{}) (err error) {
+	query = this.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
@@ -70,6 +82,7 @@ func (this *BaseExecutor) Select(dest interface{}, query string, args ...interfa
 }
 
 func (this *BaseExecutor) Exec(query string, args ...interface{}) (result contracts.Result, err error) {
+	query = this.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {

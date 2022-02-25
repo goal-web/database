@@ -3,6 +3,7 @@ package table
 import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/exceptions"
+	"github.com/goal-web/supports/logs"
 	"github.com/goal-web/supports/utils"
 )
 
@@ -12,9 +13,9 @@ func (this *Table) Create(fields contracts.Fields) interface{} {
 	if err != nil {
 		panic(CreateException{exceptions.WithError(err, fields)})
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		panic(CreateException{exceptions.WithError(err, fields)})
+	var id, lastIdErr = result.LastInsertId()
+	if lastIdErr != nil {
+		logs.WithError(lastIdErr).Debug("Table.Create: get last insert id failed")
 	}
 
 	if _, existsPrimaryKey := fields[this.primaryKey]; !existsPrimaryKey {

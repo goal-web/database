@@ -18,21 +18,29 @@ type Base struct {
 func NewDriver(db *sqlx.DB, dispatcher contracts.EventDispatcher) *Base {
 	return &Base{
 		db:       db,
-		Executor: support.NewExecutor(db, dispatcher),
+		Executor: support.NewExecutor(db, dispatcher, nil),
 		events:   dispatcher,
 	}
 }
 
-func (this *Base) Begin() (contracts.DBTx, error) {
-	sqlxTx, err := this.db.Beginx()
+func WithWrapper(db *sqlx.DB, dispatcher contracts.EventDispatcher, wrapper func(string) string) *Base {
+	return &Base{
+		db:       db,
+		Executor: support.NewExecutor(db, dispatcher, wrapper),
+		events:   dispatcher,
+	}
+}
+
+func (base *Base) Begin() (contracts.DBTx, error) {
+	sqlxTx, err := base.db.Beginx()
 	if err != nil {
 		return nil, err
 	}
-	return tx.New(sqlxTx, this.events), err
+	return tx.New(sqlxTx, base.events), err
 }
 
-func (this *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err error) {
-	sqlxTx, err := this.Begin()
+func (base *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err error) {
+	sqlxTx, err := base.Begin()
 	if err != nil {
 		return exceptions2.BeginException{Exception: exceptions.WithError(err, nil)}
 	}

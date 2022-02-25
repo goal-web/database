@@ -23,7 +23,7 @@ func (t Tx) Rollback() error {
 func New(tx *sqlx.Tx, events contracts.EventDispatcher) contracts.DBTx {
 	return &Tx{
 		tx:       tx,
-		Executor: support.NewExecutor(tx, events),
+		Executor: support.NewExecutor(tx, events, nil),
 		events:   events,
 	}
 }

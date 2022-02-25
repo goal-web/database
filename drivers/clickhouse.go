@@ -1,9 +1,11 @@
 package drivers
 
 import (
+	"errors"
 	"fmt"
 	_ "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/goal-web/contracts"
+	"github.com/goal-web/database/support"
 	"github.com/goal-web/supports/logs"
 	"github.com/goal-web/supports/utils"
 	"github.com/jmoiron/sqlx"
@@ -11,7 +13,15 @@ import (
 )
 
 type Clickhouse struct {
-	*Base
+	support.Executor
+}
+
+func (c Clickhouse) Begin() (contracts.DBTx, error) {
+	return nil, errors.New("begin is not supported")
+}
+
+func (c Clickhouse) Transaction(f func(executor contracts.SqlExecutor) error) error {
+	return errors.New("transaction is not supported")
 }
 
 func paramBindWrapper(sql string) (result string) {
@@ -66,5 +76,7 @@ func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatch
 	}
 	db.SetMaxOpenConns(utils.GetIntField(config, "max_connections"))
 	db.SetMaxIdleConns(utils.GetIntField(config, "max_idles"))
-	return &Clickhouse{WithWrapper(db, events, paramBindWrapper)}
+	return &Clickhouse{
+		support.NewExecutor(db, events, paramBindWrapper),
+	}
 }

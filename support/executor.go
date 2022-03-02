@@ -39,8 +39,8 @@ func (this *BaseExecutor) Query(query string, args ...interface{}) (results cont
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: timeConsuming})
+		if this.events != nil {
+			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: timeConsuming, Error: err})
 		}
 	}()
 	var startAt = time.Now()
@@ -60,8 +60,9 @@ func (this *BaseExecutor) Get(dest interface{}, query string, args ...interface{
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt)})
+
+		if this.events != nil {
+			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 		}
 	}()
 	return this.executor.Get(dest, query, args...)
@@ -74,8 +75,8 @@ func (this *BaseExecutor) Select(dest interface{}, query string, args ...interfa
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt)})
+		if this.events != nil {
+			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 		}
 	}()
 	return this.executor.Get(dest, query, args...)
@@ -88,8 +89,8 @@ func (this *BaseExecutor) Exec(query string, args ...interface{}) (result contra
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if err == nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt)})
+		if this.events != nil {
+			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 		}
 	}()
 	return this.executor.Exec(query, args...)

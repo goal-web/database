@@ -7,6 +7,7 @@ type QueryExecuted struct {
 	Bindings   []interface{}
 	Connection string
 	Time       time.Duration
+	Error      error
 }
 
 func (this *QueryExecuted) Event() string {

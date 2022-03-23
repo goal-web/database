@@ -24,7 +24,7 @@ func (c Clickhouse) Transaction(f func(executor contracts.SqlExecutor) error) er
 	return errors.New("transaction is not supported")
 }
 
-func paramBindWrapper(sql string) (result string) {
+func dollarNParamBindWrapper(sql string) (result string) {
 	var (
 		parts    = strings.Split(sql, "?")
 		partsLen = len(parts)
@@ -77,6 +77,6 @@ func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatch
 	db.SetMaxOpenConns(utils.GetIntField(config, "max_connections"))
 	db.SetMaxIdleConns(utils.GetIntField(config, "max_idles"))
 	return &Clickhouse{
-		support.NewExecutor(db, events, paramBindWrapper),
+		support.NewExecutor(db, events, dollarNParamBindWrapper),
 	}
 }

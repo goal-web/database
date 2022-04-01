@@ -1,14 +1,14 @@
 package table
 
 import (
-	"errors"
+	"database/sql"
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/exceptions"
 )
 
 func (this *Table) fetch(query string, bindings ...interface{}) contracts.Collection {
 	rows, err := this.getExecutor().Query(query, bindings...)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		panic(SelectException{exceptions.WithError(err, contracts.Fields{"sql": query, "bindings": bindings})})
 	}
 
@@ -23,15 +23,15 @@ func (this *Table) fetch(query string, bindings ...interface{}) contracts.Collec
 }
 
 func (this *Table) Get() contracts.Collection {
-	sql, bindings := this.SelectSql()
+	queryStatement, bindings := this.SelectSql()
 
-	return this.fetch(sql, bindings...)
+	return this.fetch(queryStatement, bindings...)
 }
 
 func (this *Table) SelectForUpdate() contracts.Collection {
-	sql, bindings := this.SelectForUpdateSql()
+	queryStatement, bindings := this.SelectForUpdateSql()
 
-	return this.fetch(sql, bindings...)
+	return this.fetch(queryStatement, bindings...)
 }
 
 func (this *Table) Find(key interface{}) interface{} {
@@ -46,5 +46,5 @@ func (this *Table) FirstOrFail() interface{} {
 	if result := this.First(); result != nil {
 		return result
 	}
-	panic(NotFoundException{exceptions.WithError(errors.New("未找到"), contracts.Fields{})})
+	panic(NotFoundException{exceptions.WithError(sql.ErrNoRows, nil)})
 }

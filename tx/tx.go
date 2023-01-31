@@ -16,7 +16,7 @@ func (t *Tx) Commit() error {
 	return t.tx.Commit()
 }
 
-func (t Tx) Rollback() error {
+func (t *Tx) Rollback() error {
 	return t.tx.Rollback()
 }
 

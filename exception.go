@@ -12,13 +12,17 @@ const (
 )
 
 type DBConnectionException struct {
-	error
+	Err        error
 	Connection string
 	Code       ConnectionErrorCode
-	fields     contracts.Fields
+	Config     contracts.Fields
+	previous   contracts.Exception
 }
 
-func (this DBConnectionException) Fields() contracts.Fields {
-	this.fields["Code"] = this.Code
-	return this.fields
+func (D DBConnectionException) Error() string {
+	return D.Err.Error()
+}
+
+func (D DBConnectionException) GetPrevious() contracts.Exception {
+	return D.previous
 }

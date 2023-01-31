@@ -32,14 +32,14 @@ type MigrationStatus struct {
 	Batch     interface{}
 }
 
-func (this *status) Handle() interface{} {
+func (cmd *status) Handle() interface{} {
 
 	var (
-		migrated = getMigrations(this.db.Connection(), this.table).Pluck("migration")
+		migrated = getMigrations(cmd.db.Connection(), cmd.table).Pluck("migration")
 		data     = make([]MigrationStatus, 0)
 	)
 
-	for _, migration := range this.migrations {
+	for _, migration := range cmd.migrations {
 		if migratedItem, exists := migrated[migration.Name].(contracts.Fields); exists {
 			data = append(data, MigrationStatus{
 				Ran:       "Yes",

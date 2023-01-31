@@ -29,27 +29,27 @@ type refresh struct {
 	migrations contracts.Migrations
 }
 
-func (this *refresh) Handle() interface{} {
-	if this.production && !this.GetBool("force") {
+func (cmd *refresh) Handle() interface{} {
+	if cmd.production && !cmd.GetBool("force") {
 		logs.WithError(MustForceErr).Error("refresh.Handle: ")
 		return MustForceErr
 	}
 
 	// rollback all migrations
-	if raw := getMigrations(this.db.Connection(), this.table); raw.Len() > 0 {
-		var migrations = collection.MustNew(this.migrations).Pluck("name")
+	if raw := getMigrations(cmd.db.Connection(), cmd.table); raw.Len() > 0 {
+		var migrations = collection.MustNew(cmd.migrations).Pluck("name")
 
 		raw.Map(func(item contracts.Fields) {
 			migration, ok := migrations[item["migration"].(string)].(contracts.Migrate)
 			if ok {
-				conn := this.db.Connection(migration.Connection)
+				conn := cmd.db.Connection(migration.Connection)
 				logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacking", migration.Name))
 				if err := migration.Down(conn); err != nil {
 					logs.WithError(err).Error(fmt.Sprintf("rollback.Handle: %s failed to rollback", migration.Name))
 					panic(err)
 				}
 				logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacked", migration.Name))
-				table.WithConnection(this.table, conn).Where("id", item["id"]).Delete()
+				table.WithConnection(cmd.table, conn).Where("id", item["id"]).Delete()
 			} else {
 				logs.Default().Warn(fmt.Sprintf("rollback.Handle: migration %s is not exists", migration.Name))
 			}
@@ -57,7 +57,7 @@ func (this *refresh) Handle() interface{} {
 	}
 
 	var (
-		migrations = collection.MustNew(this.migrations).Sort(func(migrate contracts.Migrate, next contracts.Migrate) bool {
+		migrations = collection.MustNew(cmd.migrations).Sort(func(migrate contracts.Migrate, next contracts.Migrate) bool {
 			return migrate.CreatedAt.Before(next.CreatedAt)
 		}).ToInterfaceArray()
 		executedNum = 0
@@ -65,7 +65,7 @@ func (this *refresh) Handle() interface{} {
 
 	for _, item := range migrations {
 		migration := item.(contracts.Migrate)
-		conn := this.db.Connection(migration.Connection)
+		conn := cmd.db.Connection(migration.Connection)
 		logs.Default().Info(fmt.Sprintf("migrate.Handle: %s migrating", migration.Name))
 		if err := migration.Up(conn); err != nil {
 			logs.Default().WithError(err).Error(fmt.Sprintf("migrate.Handle: %s failed to execute", migration.Name))
@@ -73,7 +73,7 @@ func (this *refresh) Handle() interface{} {
 		}
 		logs.Default().Info(fmt.Sprintf("migrate.Handle: %s migrated", migration.Name))
 		executedNum++
-		table.WithConnection(this.table, conn).Insert(contracts.Fields{
+		table.WithConnection(cmd.table, conn).Insert(contracts.Fields{
 			"batch":     1,
 			"migration": migration.Name,
 		})

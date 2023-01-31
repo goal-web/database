@@ -5,6 +5,7 @@ import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/querybuilder"
 	"github.com/goal-web/supports/exceptions"
+	"github.com/goal-web/supports/utils"
 )
 
 type Table struct {
@@ -50,47 +51,57 @@ func WithTX(name string, tx contracts.DBTx) contracts.QueryBuilder {
 }
 
 // SetConnection 参数要么是 contracts.DBConnection 要么是 string
-func (this *Table) SetConnection(connection interface{}) *Table {
+func (table *Table) SetConnection(connection interface{}) *Table {
 	if conn, ok := connection.(contracts.DBConnection); ok {
-		this.executor = conn
+		table.executor = conn
 	} else {
-		this.executor = application.Get("db.factory").(contracts.DBFactory).Connection(connection.(string))
+		table.executor = application.Get("db.factory").(contracts.DBFactory).Connection(utils.ConvertToString(connection, ""))
 	}
-	return this
+	return table
 }
 
 // SetClass 设置类
-func (this *Table) SetClass(class contracts.Class) *Table {
-	this.class = class
-	return this
+func (table *Table) SetClass(class contracts.Class) *Table {
+	table.class = class
+	return table
 }
 
 // SetPrimaryKey 设置主键
-func (this *Table) SetPrimaryKey(name string) *Table {
-	this.primaryKey = name
-	return this
+func (table *Table) SetPrimaryKey(name string) *Table {
+	table.primaryKey = name
+	return table
 }
 
 // getExecutor 获取 sql 语句的执行者
-func (this *Table) getExecutor() contracts.SqlExecutor {
-	return this.executor
+func (table *Table) getExecutor() contracts.SqlExecutor {
+	return table.executor
 }
 
 // SetExecutor 参数必须是 contracts.DBTx 实例
-func (this *Table) SetExecutor(executor contracts.SqlExecutor) contracts.QueryBuilder {
-	this.executor = executor
-	return this
+func (table *Table) SetExecutor(executor contracts.SqlExecutor) contracts.QueryBuilder {
+	table.executor = executor
+	return table
 }
 
-func (this *Table) Delete() int64 {
-	sql, bindings := this.DeleteSql()
-	result, err := this.getExecutor().Exec(sql, bindings...)
+func (table *Table) Delete() int64 {
+	sql, bindings := table.DeleteSql()
+	result, err := table.getExecutor().Exec(sql, bindings...)
 	if err != nil {
-		panic(DeleteException{exceptions.WithError(err, contracts.Fields{"sql": sql, "bindings": bindings})})
+		panic(DeleteException{
+			Sql:      sql,
+			Bindings: bindings,
+			Err:      err,
+			previous: exceptions.WithError(err),
+		})
 	}
 	num, err := result.RowsAffected()
 	if err != nil {
-		panic(DeleteException{exceptions.WithError(err, contracts.Fields{"sql": sql, "bindings": bindings})})
+		panic(DeleteException{
+			Sql:      sql,
+			Bindings: bindings,
+			Err:      err,
+			previous: exceptions.WithError(err),
+		})
 	}
 	return num
 }

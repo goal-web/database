@@ -29,15 +29,15 @@ type rollback struct {
 	migrations contracts.Migrations
 }
 
-func (this *rollback) Handle() interface{} {
-	if this.production && !this.GetBool("force") {
+func (cmd *rollback) Handle() interface{} {
+	if cmd.production && !cmd.GetBool("force") {
 		logs.WithError(MustForceErr).Error("refresh.Handle: ")
 		return MustForceErr
 	}
 
 	var (
-		raw        = getMigrations(this.db.Connection(), this.table)
-		migrations = collection.MustNew(this.migrations).Pluck("name")
+		raw        = getMigrations(cmd.db.Connection(), cmd.table)
+		migrations = collection.MustNew(cmd.migrations).Pluck("name")
 	)
 
 	if raw.Len() == 0 {
@@ -48,14 +48,14 @@ func (this *rollback) Handle() interface{} {
 	raw.Where("batch", raw.Max("batch")).Map(func(item contracts.Fields) {
 		migration, ok := migrations[item["migration"].(string)].(contracts.Migrate)
 		if ok {
-			conn := this.db.Connection(migration.Connection)
+			conn := cmd.db.Connection(migration.Connection)
 			logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacking", migration.Name))
 			if err := migration.Down(conn); err != nil {
 				logs.WithError(err).Error(fmt.Sprintf("rollback.Handle: %s failed to rollback", migration.Name))
 				panic(err)
 			}
 			logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacked", migration.Name))
-			table.WithConnection(this.table, conn).
+			table.WithConnection(cmd.table, conn).
 				Where("migration", item["migration"]).
 				Where("batch", item["batch"]).
 				Delete()

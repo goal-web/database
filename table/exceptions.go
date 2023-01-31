@@ -2,26 +2,29 @@ package table
 
 import "github.com/goal-web/contracts"
 
-type CreateException struct {
-	contracts.Exception
+type Exception struct {
+	Sql      string
+	Bindings []interface{}
+	Err      error
+	previous contracts.Exception
 }
 
-type InsertException struct {
-	contracts.Exception
+func (e *Exception) Error() string {
+	return e.Err.Error()
 }
 
-type UpdateException struct {
-	contracts.Exception
+func (e *Exception) GetPrevious() contracts.Exception {
+	return e.previous
 }
 
-type DeleteException struct {
-	contracts.Exception
-}
+type CreateException = Exception
 
-type SelectException struct {
-	contracts.Exception
-}
+type InsertException = Exception
 
-type NotFoundException struct {
-	contracts.Exception
-}
+type UpdateException = Exception
+
+type DeleteException = Exception
+
+type SelectException = Exception
+
+type NotFoundException = Exception

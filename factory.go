@@ -14,42 +14,42 @@ type Factory struct {
 	dbConfig    Config
 }
 
-func (this *Factory) Connection(name ...string) contracts.DBConnection {
-	connection := this.dbConfig.Default
+func (factory *Factory) Connection(name ...string) contracts.DBConnection {
+	connection := factory.dbConfig.Default
 	if len(name) > 0 && name[0] != "" {
 		connection = name[0]
 	}
-	if conn, existsConnection := this.connections[connection]; existsConnection {
+	if conn, existsConnection := factory.connections[connection]; existsConnection {
 		return conn
 	}
 
-	this.connections[connection] = this.make(connection)
+	factory.connections[connection] = factory.make(connection)
 
-	return this.connections[connection]
+	return factory.connections[connection]
 }
 
-func (this *Factory) Extend(name string, driver contracts.DBConnector) {
-	this.drivers[name] = driver
+func (factory *Factory) Extend(name string, driver contracts.DBConnector) {
+	factory.drivers[name] = driver
 }
 
-func (this *Factory) make(name string) contracts.DBConnection {
-	config := this.config.Get("database").(Config)
+func (factory *Factory) make(name string) contracts.DBConnection {
+	config := factory.config.Get("database").(Config)
 
 	if connectionConfig, existsConnection := config.Connections[name]; existsConnection {
 		driverName := utils.GetStringField(connectionConfig, "driver")
-		if driver, existsDriver := this.drivers[driverName]; existsDriver {
-			return driver(connectionConfig, this.events)
+		if driver, existsDriver := factory.drivers[driverName]; existsDriver {
+			return driver(connectionConfig, factory.events)
 		}
 
 		panic(DBConnectionException{
-			error:  errors.New("该数据库驱动不存在：" + driverName),
+			Err:    errors.New("该数据库驱动不存在：" + driverName),
 			Code:   DbDriverDontExist,
-			fields: connectionConfig,
+			Config: connectionConfig,
 		})
 	}
 
 	panic(DBConnectionException{
-		error:      errors.New("数据库连接不存在：" + name),
+		Err:        errors.New("数据库连接不存在：" + name),
 		Code:       DbConnectionDontExist,
 		Connection: name,
 	})

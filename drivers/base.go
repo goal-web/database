@@ -42,7 +42,7 @@ func (base *Base) Begin() (contracts.DBTx, error) {
 func (base *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err error) {
 	sqlxTx, err := base.Begin()
 	if err != nil {
-		return exceptions2.BeginException{Exception: exceptions.WithError(err, nil)}
+		return &exceptions2.BeginException{Err: err}
 	}
 
 	defer func() { // 处理 panic 情况
@@ -50,9 +50,12 @@ func (base *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err erro
 			rollbackErr := sqlxTx.Rollback()
 			err = recoverErr.(error)
 			if rollbackErr != nil {
-				err = exceptions2.RollbackException{Exception: exceptions.WithPrevious(rollbackErr, nil, exceptions.WithError(err, nil))}
+				err = &exceptions2.RollbackException{
+					Err:      rollbackErr,
+					Previous: exceptions.WithError(err),
+				}
 			} else {
-				err = exceptions2.TransactionException{Exception: exceptions.WithError(err, nil)}
+				err = &exceptions2.TransactionException{Err: err}
 			}
 		}
 	}()
@@ -62,9 +65,9 @@ func (base *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err erro
 	if err != nil {
 		rollbackErr := sqlxTx.Rollback()
 		if rollbackErr != nil {
-			return exceptions2.RollbackException{Exception: exceptions.WithPrevious(rollbackErr, nil, exceptions.WithError(err, nil))}
+			return &exceptions2.RollbackException{Err: rollbackErr, Previous: exceptions.WithError(err)}
 		}
-		return exceptions2.TransactionException{Exception: exceptions.WithError(err, nil)}
+		return &exceptions2.TransactionException{Err: err}
 	}
 
 	return sqlxTx.Commit()

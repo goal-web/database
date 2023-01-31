@@ -10,16 +10,18 @@ type ServiceProvider struct {
 	migrations contracts.Migrations
 }
 
-func Service(migrations contracts.Migrations) contracts.ServiceProvider {
+func NewService(migrations contracts.Migrations) contracts.ServiceProvider {
 	return &ServiceProvider{migrations: migrations}
 }
 
-func (this *ServiceProvider) Register(application contracts.Application) {
-	application.Instance("migrations", this.migrations)
+func (provider *ServiceProvider) Register(application contracts.Application) {
+	application.Instance("migrations", provider.migrations)
 	application.Singleton("migrations.table", func(config contracts.Config) string {
 		return config.Get("database").(Config).Migrations
 	})
-	application.Singleton("db.factory", func(config contracts.Config, events contracts.EventDispatcher) contracts.DBFactory {
+
+	application.Singleton("db.factory", func(config contracts.Config) contracts.DBFactory {
+		events, _ := application.Get("events").(contracts.EventDispatcher)
 		return &Factory{
 			events:      events,
 			config:      config,
@@ -37,19 +39,19 @@ func (this *ServiceProvider) Register(application contracts.Application) {
 		return factory.Connection()
 	})
 
-	// 一定要确保 console 在 database 之前注册
-	application.Call(func(console contracts.Console) {
+	// 请确保 console 在 database 之前注册，否则迁移命令无法注册到 console 中
+	if console, ok := application.Get("console").(contracts.Console); ok {
 		console.RegisterCommand("migrate", migrations.Migrate)
 		console.RegisterCommand("migrate:rollback", migrations.Rollback)
 		console.RegisterCommand("migrate:refresh", migrations.Refresh)
 		console.RegisterCommand("migrate:reset", migrations.Reset)
 		console.RegisterCommand("migrate:status", migrations.Status)
-	})
+	}
 }
 
-func (this *ServiceProvider) Start() error {
+func (provider *ServiceProvider) Start() error {
 	return nil
 }
 
-func (this *ServiceProvider) Stop() {
+func (provider *ServiceProvider) Stop() {
 }

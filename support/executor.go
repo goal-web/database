@@ -13,17 +13,6 @@ type BaseExecutor struct {
 	wrapper  func(sql string) string
 }
 
-func (this *BaseExecutor) DriverName() string {
-	return this.executor.DriverName()
-}
-
-func (this *BaseExecutor) getStatement(sql string) string {
-	if this.wrapper != nil {
-		return this.wrapper(sql)
-	}
-	return sql
-}
-
 func NewExecutor(executor SqlxExecutor, dispatcher contracts.EventDispatcher, wrapper func(sql string) string) Executor {
 	return &BaseExecutor{
 		executor: executor,
@@ -32,19 +21,33 @@ func NewExecutor(executor SqlxExecutor, dispatcher contracts.EventDispatcher, wr
 	}
 }
 
-func (this *BaseExecutor) Query(query string, args ...interface{}) (results contracts.Collection, err error) {
-	query = this.getStatement(query)
+func (base *BaseExecutor) DriverName() string {
+	return base.executor.DriverName()
+}
+func (base *BaseExecutor) dispatchEvent(event contracts.Event) {
+	if base.events != nil {
+		base.events.Dispatch(event)
+	}
+}
+
+func (base *BaseExecutor) getStatement(sql string) string {
+	if base.wrapper != nil {
+		return base.wrapper(sql)
+	}
+	return sql
+}
+
+func (base *BaseExecutor) Query(query string, args ...interface{}) (results contracts.Collection, err error) {
+	query = base.getStatement(query)
 	var timeConsuming time.Duration
 	defer func() {
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if this.events != nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: timeConsuming, Error: err})
-		}
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: timeConsuming, Error: err})
 	}()
 	var startAt = time.Now()
-	rows, err := this.executor.Queryx(query, args...)
+	rows, err := base.executor.Queryx(query, args...)
 	timeConsuming = time.Now().Sub(startAt)
 	if err != nil {
 		return nil, err
@@ -53,45 +56,39 @@ func (this *BaseExecutor) Query(query string, args ...interface{}) (results cont
 	return ParseRowsToCollection(rows)
 }
 
-func (this *BaseExecutor) Get(dest interface{}, query string, args ...interface{}) (err error) {
-	query = this.getStatement(query)
+func (base *BaseExecutor) Get(dest interface{}, query string, args ...interface{}) (err error) {
+	query = base.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
 
-		if this.events != nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
-		}
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 	}()
-	return this.executor.Get(dest, query, args...)
+	return base.executor.Get(dest, query, args...)
 }
 
-func (this *BaseExecutor) Select(dest interface{}, query string, args ...interface{}) (err error) {
-	query = this.getStatement(query)
+func (base *BaseExecutor) Select(dest interface{}, query string, args ...interface{}) (err error) {
+	query = base.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if this.events != nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
-		}
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 	}()
-	return this.executor.Get(dest, query, args...)
+	return base.executor.Get(dest, query, args...)
 }
 
-func (this *BaseExecutor) Exec(query string, args ...interface{}) (result contracts.Result, err error) {
-	query = this.getStatement(query)
+func (base *BaseExecutor) Exec(query string, args ...interface{}) (result contracts.Result, err error) {
+	query = base.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
 			err = exceptions.ResolveException(recover())
 		}
-		if this.events != nil {
-			this.events.Dispatch(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
-		}
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 	}()
-	return this.executor.Exec(query, args...)
+	return base.executor.Exec(query, args...)
 }

@@ -29,27 +29,27 @@ type reset struct {
 	migrations contracts.Migrations
 }
 
-func (this *reset) Handle() interface{} {
-	if this.production && !this.GetBool("force") {
+func (cmd *reset) Handle() interface{} {
+	if cmd.production && !cmd.GetBool("force") {
 		logs.WithError(MustForceErr).Error("refresh.Handle: ")
 		return MustForceErr
 	}
 
 	// rollback all migrations
-	if raw := getMigrations(this.db.Connection(), this.table); raw.Len() > 0 {
-		var migrations = collection.MustNew(this.migrations).Pluck("name")
+	if raw := getMigrations(cmd.db.Connection(), cmd.table); raw.Len() > 0 {
+		var migrations = collection.MustNew(cmd.migrations).Pluck("name")
 
 		raw.Map(func(item contracts.Fields) {
 			migration, ok := migrations[item["migration"].(string)].(contracts.Migrate)
 			if ok {
-				conn := this.db.Connection(migration.Connection)
+				conn := cmd.db.Connection(migration.Connection)
 				logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacking", migration.Name))
 				if err := migration.Down(conn); err != nil {
 					logs.WithError(err).Error(fmt.Sprintf("rollback.Handle: %s failed to rollback", migration.Name))
 					panic(err)
 				}
 				logs.Default().Info(fmt.Sprintf("rollback.Handle: %s rollbacked", migration.Name))
-				table.WithConnection(this.table, conn).Where("id", item["id"]).Delete()
+				table.WithConnection(cmd.table, conn).Where("id", item["id"]).Delete()
 			} else {
 				logs.Default().Warn(fmt.Sprintf("rollback.Handle: migration %s is not exists", migration.Name))
 			}

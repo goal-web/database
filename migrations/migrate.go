@@ -32,28 +32,28 @@ type migrate struct {
 
 var MustForceErr = errors.New("use the force option in production")
 
-func (this *migrate) Handle() interface{} {
-	if this.production && !this.GetBool("force") {
+func (cmd *migrate) Handle() interface{} {
+	if cmd.production && !cmd.GetBool("force") {
 		logs.WithError(MustForceErr).Error("refresh.Handle: ")
 		return MustForceErr
 	}
 
 	var (
-		raw           = getMigrations(this.db.Connection(), this.table)
+		raw           = getMigrations(cmd.db.Connection(), cmd.table)
 		executedNum   = 0
 		migratedItems = raw.Pluck("migration")
 	)
 
 	batch := raw.Max("batch") + 1
 
-	migrations := collection.MustNew(this.migrations).Sort(func(migrate contracts.Migrate, next contracts.Migrate) bool {
+	migrations := collection.MustNew(cmd.migrations).Sort(func(migrate contracts.Migrate, next contracts.Migrate) bool {
 		return migrate.CreatedAt.Before(next.CreatedAt)
 	}).ToInterfaceArray()
 
 	for _, item := range migrations {
 		migration := item.(contracts.Migrate)
 		if _, exists := migratedItems[migration.Name]; !exists {
-			conn := this.db.Connection(migration.Connection)
+			conn := cmd.db.Connection(migration.Connection)
 			logs.Default().Info(fmt.Sprintf("migrate.Handle: %s migrating", migration.Name))
 			if err := migration.Up(conn); err != nil {
 				logs.Default().WithError(err).Error(fmt.Sprintf("migrate.Handle: %s failed to execute", migration.Name))
@@ -61,7 +61,7 @@ func (this *migrate) Handle() interface{} {
 			}
 			logs.Default().Info(fmt.Sprintf("migrate.Handle: %s migrated", migration.Name))
 			executedNum++
-			table.WithConnection(this.table, conn).Insert(contracts.Fields{
+			table.WithConnection(cmd.table, conn).Insert(contracts.Fields{
 				"batch":     batch,
 				"migration": migration.Name,
 			})

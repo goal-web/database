@@ -5,7 +5,12 @@ import (
 )
 
 type Config struct {
-	Default     string
+	// 默认数据库连接
+	Default string
+	
+	// 数据库连接配置
 	Connections map[string]contracts.Fields
-	Migrations  string
+
+	// 迁移表名字
+	Migrations string
 }

@@ -1,15 +1,11 @@
 package exceptions
 
-import "github.com/goal-web/contracts"
+import (
+	"github.com/goal-web/supports/exceptions"
+)
 
-type TransactionException struct {
-	contracts.Exception
-}
+type TransactionException = exceptions.Exception
 
-type RollbackException struct {
-	contracts.Exception
-}
+type RollbackException = exceptions.Exception
 
-type BeginException struct {
-	contracts.Exception
-}
+type BeginException = exceptions.Exception

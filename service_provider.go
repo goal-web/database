@@ -2,11 +2,12 @@ package database
 
 import (
 	"github.com/goal-web/contracts"
-	"github.com/goal-web/database/drivers"
 	"github.com/goal-web/database/migrations"
+	"github.com/goal-web/database/table"
 )
 
 type ServiceProvider struct {
+	app        contracts.Application
 	migrations contracts.Migrations
 }
 
@@ -15,6 +16,7 @@ func NewService(migrations contracts.Migrations) contracts.ServiceProvider {
 }
 
 func (provider *ServiceProvider) Register(application contracts.Application) {
+	provider.app = application
 	application.Instance("migrations", provider.migrations)
 	application.Singleton("migrations.table", func(config contracts.Config) string {
 		return config.Get("database").(Config).Migrations
@@ -22,18 +24,7 @@ func (provider *ServiceProvider) Register(application contracts.Application) {
 
 	application.Singleton("db.factory", func(config contracts.Config) contracts.DBFactory {
 		events, _ := application.Get("events").(contracts.EventDispatcher)
-		return &Factory{
-			events:      events,
-			config:      config,
-			dbConfig:    config.Get("database").(Config),
-			connections: make(map[string]contracts.DBConnection),
-			drivers: map[string]contracts.DBConnector{
-				"mysql":      drivers.MysqlConnector,
-				"postgres":   drivers.PostgresSqlConnector,
-				"sqlite":     drivers.SqliteConnector,
-				"clickhouse": drivers.ClickHouseConnector,
-			},
-		}
+		return NewFactory(config.Get("database").(Config), events)
 	})
 	application.Singleton("db", func(config contracts.Config, factory contracts.DBFactory) contracts.DBConnection {
 		return factory.Connection()
@@ -50,6 +41,7 @@ func (provider *ServiceProvider) Register(application contracts.Application) {
 }
 
 func (provider *ServiceProvider) Start() error {
+	table.SetFactory(provider.app.Get("db.factory").(contracts.DBFactory))
 	return nil
 }
 

@@ -61,3 +61,34 @@ func TestMysqlDatabaseService(t *testing.T) {
 	assert.True(t, table.Query("users").Count() == 0)
 
 }
+
+func TestMysqlDatabaseWithoutApplication(t *testing.T) {
+	table.SetFactory(database.NewFactory(database.Config{
+		Default: "mysql",
+		Connections: map[string]contracts.Fields{
+			"mysql": {
+				"driver":    "mysql",
+				"host":      "localhost",
+				"port":      "3306",
+				"database":  "goal",
+				"username":  "root",
+				"password":  "123456",
+				"charset":   "utf8mb4",
+				"collation": "utf8mb4_unicode_ci",
+			},
+		},
+		Migrations: "migrations",
+	}, nil))
+
+	assert.True(t, table.Query("users").Count() == 0)
+
+	user := table.Query("users").Create(contracts.Fields{
+		"name": "testing",
+	})
+	assert.NotNil(t, user)
+	assert.True(t, user.(contracts.Fields)["name"] == "testing")
+	assert.True(t, table.Query("users").Count() == 1)
+	table.Query("users").Where("name", "testing").Delete()
+	assert.True(t, table.Query("users").Count() == 0)
+
+}

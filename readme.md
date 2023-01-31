@@ -210,8 +210,38 @@ func TestModel(t *testing.T) {
 > 更多查询构造器用法请移步 [goal-web/querybuilder](https://github.com/goal-web/querybuilder)
 
 ### 在 goal 之外的框架使用 - use in frameworks other than goal
-这部分内容比较多，这里暂时不展开讲，后面会专门录视频介绍，欢迎大家点赞订阅
+```golang
+// TestMysqlDatabaseWithoutApplication 只需要给给 table 包设置一个可用的 contracts.DBFactory 即可正常使用 table 下面的数据库操作方法
+func TestMysqlDatabaseWithoutApplication(t *testing.T) {
+	table.SetFactory(database.NewFactory(database.Config{
+		Default: "mysql",
+		Connections: map[string]contracts.Fields{
+			"mysql": {
+				"driver":    "mysql",
+				"host":      "localhost",
+				"port":      "3306",
+				"database":  "goal",
+				"username":  "root",
+				"password":  "123456",
+				"charset":   "utf8mb4",
+				"collation": "utf8mb4_unicode_ci",
+			},
+		},
+	}, nil))
 
+	assert.True(t, table.Query("users").Count() == 0)
+
+	user := table.Query("users").Create(contracts.Fields{
+		"name": "testing",
+	})
+	assert.NotNil(t, user)
+	assert.True(t, user.(contracts.Fields)["name"] == "testing")
+	assert.True(t, table.Query("users").Count() == 1)
+	table.Query("users").Where("name", "testing").Delete()
+	assert.True(t, table.Query("users").Count() == 0)
+}
+
+```
 
 [goal-web](https://github.com/goal-web/goal)  
 [goal-web/database](https://github.com/goal-web/database)  

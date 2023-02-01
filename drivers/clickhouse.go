@@ -24,21 +24,6 @@ func (c Clickhouse) Transaction(f func(executor contracts.SqlExecutor) error) er
 	return errors.New("transaction is not supported")
 }
 
-func DollarNParamBindWrapper(sql string) (result string) {
-	var (
-		parts    = strings.Split(sql, "?")
-		partsLen = len(parts)
-	)
-	if partsLen == 1 {
-		return sql
-	}
-	result = parts[0]
-	for i := 1; i < partsLen; i++ {
-		result = fmt.Sprintf("%s$%d%s", result, i, parts[i])
-	}
-	return
-}
-
 func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatcher) contracts.DBConnection {
 	var dsn = utils.GetStringField(config, "dsn")
 	if dsn == "" {

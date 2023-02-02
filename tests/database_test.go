@@ -63,22 +63,28 @@ func TestMysqlDatabaseService(t *testing.T) {
 }
 
 func TestMysqlDatabaseWithoutApplication(t *testing.T) {
-	table.SetFactory(database.NewFactory(database.Config{
-		Default: "mysql",
-		Connections: map[string]contracts.Fields{
-			"mysql": {
-				"driver":    "mysql",
-				"host":      "localhost",
-				"port":      "3306",
-				"database":  "goal",
-				"username":  "root",
-				"password":  "123456",
-				"charset":   "utf8mb4",
-				"collation": "utf8mb4_unicode_ci",
+	// 实例化数据库工厂
+	factory := database.NewFactory(
+		database.Config{
+			Default: "mysql",
+			Connections: map[string]contracts.Fields{
+				"mysql": {
+					"driver":    "mysql",
+					"host":      "localhost",
+					"port":      "3306",
+					"database":  "goal",
+					"username":  "root",
+					"password":  "123456",
+					"charset":   "utf8mb4",
+					"collation": "utf8mb4_unicode_ci",
+				},
 			},
 		},
-		Migrations: "migrations",
-	}, nil))
+		nil, // 第二个参数是一个 goal 的事件实例，非 goal 环境的情况下，允许为 nil
+	)
+
+	// 为 table 包设置数据库工厂
+	table.SetFactory(factory)
 
 	assert.True(t, table.Query("users").Count() == 0)
 

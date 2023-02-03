@@ -1,162 +1,227 @@
 package schema
 
-import "github.com/goal-web/querybuilder"
+import (
+	"fmt"
+	"github.com/goal-web/querybuilder"
+)
 
 type ColumnDefinition struct {
+	Name                 string
+	Table                string
+	AfterColumn          string
+	IsAutoIncrement      bool
+	IsChange             bool
+	CharsetValue         string
+	CollationValue       string
+	CommentValue         string
+	DefaultValue         interface{}
+	IsFirst              bool
+	StartValue           int
+	IndexName            string
+	FulltextIndexName    string
+	SpatialIndexName     string
+	UniqueIndexName      string
+	IsInvisible          bool
+	IsNullable           bool
+	IsPersisted          bool
+	IsPrimary            bool
+	StoredAsExpression   string
+	TypeValue            string
+	IsUnsigned           bool
+	IsUseCurrent         bool
+	IsUseCurrentOnUpdate bool
+	VirtualAsExpression  string
+	// float
+	TotalValue  int // 总长度
+	PlacesValue int // 小数点长度
+
+	// time
+	PrecisionValue int
 }
 
-// after Place the column "after" another column (MySQL)
-func (Column *ColumnDefinition) after(column string) *ColumnDefinition {
-	// TODO
-	return Column
+// After Place the column "after" another column (MySQL)
+func (column *ColumnDefinition) After(columnName string) *ColumnDefinition {
+	column.AfterColumn = columnName
+	return column
 }
 
-// always Used as a modifier for generatedAs()(PostgreSQL)
-func (Column *ColumnDefinition) always(value ...bool) *ColumnDefinition {
+// Always Used as a modifier for generatedAs()(PostgreSQL)
+func (column *ColumnDefinition) Always(value ...bool) *ColumnDefinition {
 	// TODO
-	return Column
+	return column
 }
 
-// autoIncrement() Set INTEGER columns as auto-increment (primary key)
-func (Column *ColumnDefinition) autoIncrement() *ColumnDefinition {
-	// TODO
-	return Column
+// AutoIncrement Set INTEGER columns as auto-increment (primary key)
+func (column *ColumnDefinition) AutoIncrement() *ColumnDefinition {
+	column.IsAutoIncrement = true
+	return column
 }
 
-// change() Change the column
-func (Column *ColumnDefinition) change() *ColumnDefinition {
-	// TODO
-	return Column
+// Change the column
+func (column *ColumnDefinition) Change() *ColumnDefinition {
+	column.IsChange = true
+	return column
 }
 
-// charset Specify a character set for the column (MySQL)
-func (Column *ColumnDefinition) charset(charset string) *ColumnDefinition {
-	// TODO
-	return Column
+// Charset Specify a character set for the column (MySQL)
+func (column *ColumnDefinition) Charset(charset string) *ColumnDefinition {
+	column.CharsetValue = charset
+	return column
 }
 
-// collation Specify a collation for the column (MySQL/PostgreSQL/SQL Server)
-func (Column *ColumnDefinition) collation(collation string) *ColumnDefinition {
-	// TODO
-	return Column
+// Collation Specify a collation for the column (MySQL/PostgreSQL/SQL Server)
+func (column *ColumnDefinition) Collation(collation string) *ColumnDefinition {
+	column.CollationValue = collation
+	return column
 }
 
-// comment Add a comment to the column (MySQL/PostgreSQL)
-func (Column *ColumnDefinition) comment(comment string) *ColumnDefinition {
-	// TODO
-	return Column
+// Comment Add a comment to the column (MySQL/PostgreSQL)
+func (column *ColumnDefinition) Comment(comment string) *ColumnDefinition {
+	column.CommentValue = comment
+	return column
 }
 
 // Default Specify a "default" value for the column
-func (Column *ColumnDefinition) Default(value interface{}) *ColumnDefinition {
-	// TODO
-	return Column
+func (column *ColumnDefinition) Default(value interface{}) *ColumnDefinition {
+	column.DefaultValue = value
+	return column
 }
 
-// first Place the column "first" in the table (MySQL)
-func (Column *ColumnDefinition) first() *ColumnDefinition {
-	// TODO
-	return Column
+// First Place the column "first" in the table (MySQL)
+func (column *ColumnDefinition) First() *ColumnDefinition {
+	column.IsFirst = true
+	return column
 }
 
-// from Set the starting value of an auto-incrementing field (MySQL / PostgreSQL)
-func (Column *ColumnDefinition) from(startingValue int) *ColumnDefinition {
-	// TODO
-	return Column
+// From Set the starting value of an auto-incrementing field (MySQL / PostgreSQL)
+func (column *ColumnDefinition) From(startingValue int) *ColumnDefinition {
+	column.StartValue = startingValue
+	return column
 }
 
-// generatedAs Create a SQL compliant identity column (PostgreSQL)
-func (Column *ColumnDefinition) generatedAs(expression ...querybuilder.Expression) *ColumnDefinition {
+// GeneratedAs Create a SQL compliant identity column (PostgreSQL)
+func (column *ColumnDefinition) GeneratedAs(expression ...querybuilder.Expression) *ColumnDefinition {
 	// TODO
-	return Column
+	return column
 }
 
-// index Add an index
-func (Column *ColumnDefinition) index(indexName ...string) *ColumnDefinition {
-	// TODO
-	return Column
+// Index Add an index
+func (column *ColumnDefinition) Index(indexName ...string) *ColumnDefinition {
+	if len(indexName) > 0 {
+		column.IndexName = indexName[0]
+	} else {
+		column.IndexName = fmt.Sprintf("%s_%s_index", column.Table, column.Name)
+	}
+	return column
 }
 
-// invisible Specify that the column should be invisible to "SELECT *" (MySQL)
-func (Column *ColumnDefinition) invisible() *ColumnDefinition {
-	// TODO
-	return Column
+// Invisible Specify that the column should be invisible to "SELECT *" (MySQL)
+func (column *ColumnDefinition) Invisible() *ColumnDefinition {
+	column.IsInvisible = true
+	return column
 }
 
-// nullable Allow NULL values to be inserted into the column
-func (Column *ColumnDefinition) nullable(value ...bool) *ColumnDefinition {
-	// TODO
-	return Column
+// Nullable Allow NULL values to be inserted into the column
+func (column *ColumnDefinition) Nullable(value ...bool) *ColumnDefinition {
+	if len(value) > 0 {
+		column.IsNullable = value[0]
+	} else {
+		column.IsNullable = true
+	}
+	return column
 }
 
-// persisted() Mark the computed generated column as persistent (SQL Server)
-func (Column *ColumnDefinition) persisted() *ColumnDefinition {
-	// TODO
-	return Column
+// Persisted Mark the computed generated column as persistent (SQL Server)
+func (column *ColumnDefinition) Persisted() *ColumnDefinition {
+	column.IsPersisted = true
+	return column
 }
 
-// primary() Add a primary index
-func (Column *ColumnDefinition) primary() *ColumnDefinition {
-	// TODO
-	return Column
+// Primary Add a primary index
+func (column *ColumnDefinition) Primary() *ColumnDefinition {
+	column.IsPrimary = true
+	return column
 }
 
-// fulltext Add a fulltext index
-func (Column *ColumnDefinition) fulltext(indexName ...string) *ColumnDefinition {
-	// TODO
-	return Column
+// Fulltext Add a fulltext index
+func (column *ColumnDefinition) Fulltext(indexName ...string) *ColumnDefinition {
+	if len(indexName) > 0 {
+		column.FulltextIndexName = indexName[0]
+	} else {
+		column.FulltextIndexName = fmt.Sprintf("%s_%s_fulltext_index", column.Table, column.Name)
+	}
+	return column
 }
 
-// spatialIndex Add a spatial index
-func (Column *ColumnDefinition) spatialIndex(indexName ...string) *ColumnDefinition {
-	// TODO
-	return Column
+// SpatialIndex Add a spatial index
+func (column *ColumnDefinition) SpatialIndex(indexName ...string) *ColumnDefinition {
+	if len(indexName) > 0 {
+		column.SpatialIndexName = indexName[0]
+	} else {
+		column.SpatialIndexName = fmt.Sprintf("%s_%s_spatial_index", column.Table, column.Name)
+	}
+	return column
 }
 
-// storedAs Create a stored generated column (MySQL/PostgreSQL/SQLite)
-func (Column *ColumnDefinition) startingValue(startingValue int) *ColumnDefinition {
+// StartingValue create a stored generated column (MySQL/PostgreSQL/SQLite)
+func (column *ColumnDefinition) StartingValue(startingValue int) *ColumnDefinition {
 	// TODO
-	return Column
+	return column
 }
 
-// storedAs Create a stored generated column (MySQL/PostgreSQL/SQLite)
-func (Column *ColumnDefinition) storedAs(expression string) *ColumnDefinition {
-	// TODO
-	return Column
+// StoredAs Create a stored generated column (MySQL/PostgreSQL/SQLite)
+func (column *ColumnDefinition) StoredAs(expression string) *ColumnDefinition {
+	column.StoredAsExpression = expression
+	return column
 }
 
 // Type Specify a type for the column
-func (Column *ColumnDefinition) Type(typeValue string) *ColumnDefinition {
-	// TODO
-	return Column
+func (column *ColumnDefinition) Type(typeValue string) *ColumnDefinition {
+	column.TypeValue = typeValue
+	return column
 }
 
 // Unique Add a unique index
-func (Column *ColumnDefinition) unique(indexName ...string) *ColumnDefinition {
-	// TODO
-	return Column
+func (column *ColumnDefinition) Unique(indexName ...string) *ColumnDefinition {
+	if len(indexName) > 0 {
+		column.UniqueIndexName = indexName[0]
+	} else {
+		column.UniqueIndexName = fmt.Sprintf("%s_%s_unique_index", column.Table, column.Name)
+	}
+	return column
 }
 
-// unsigned() Set the INTEGER column as UNSIGNED (MySQL)
-func (Column *ColumnDefinition) unsigned() *ColumnDefinition {
-	// TODO
-	return Column
+// Unsigned Set the INTEGER column as UNSIGNED (MySQL)
+func (column *ColumnDefinition) Unsigned() *ColumnDefinition {
+	column.IsUnsigned = true
+	return column
 }
 
-// useCurrent() Set the TIMESTAMP column to use CURRENT_TIMESTAMP as default value
-func (Column *ColumnDefinition) useCurrent() *ColumnDefinition {
-	// TODO
-	return Column
+func (column *ColumnDefinition) Float(total, places int) *ColumnDefinition {
+	column.TotalValue = total
+	column.PlacesValue = places
+	return column
 }
 
-// useCurrentOnUpdate() Set the TIMESTAMP column to use CURRENT_TIMESTAMP when updating (MySQL)
-func (Column *ColumnDefinition) useCurrentOnUpdate() *ColumnDefinition {
-	// TODO
-	return Column
+// UseCurrent Set the TIMESTAMP column to use CURRENT_TIMESTAMP as default value
+func (column *ColumnDefinition) UseCurrent() *ColumnDefinition {
+	column.IsUseCurrent = true
+	return column
 }
 
-// virtualAs Create a virtual generated column (MySQL/PostgreSQL/SQLite)
-func (Column *ColumnDefinition) virtualAs(expression string) *ColumnDefinition {
-	// TODO
-	return Column
+// UseCurrentOnUpdate Set the TIMESTAMP column to use CURRENT_TIMESTAMP when updating (MySQL)
+func (column *ColumnDefinition) UseCurrentOnUpdate() *ColumnDefinition {
+	column.IsUseCurrentOnUpdate = true
+	return column
+}
+
+// VirtualAs Create a virtual generated column (MySQL/PostgreSQL/SQLite)
+func (column *ColumnDefinition) VirtualAs(expression string) *ColumnDefinition {
+	column.VirtualAsExpression = expression
+	return column
+}
+
+func (column *ColumnDefinition) Precision(precision int) *ColumnDefinition {
+	column.PrecisionValue = precision
+	return column
 }

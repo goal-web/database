@@ -37,12 +37,13 @@ func (base *BaseExecutor) getStatement(sql string) string {
 	return sql
 }
 
-func (base *BaseExecutor) Query(query string, args ...interface{}) (results contracts.Collection, err error) {
+func (base *BaseExecutor) Query(query string, args ...any) (results contracts.Collection[contracts.Fields], exception contracts.Exception) {
 	query = base.getStatement(query)
 	var timeConsuming time.Duration
+	var err error
 	defer func() {
 		if err == nil {
-			err = exceptions.ResolveException(recover())
+			err = exceptions.WrapException(recover())
 		}
 		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: timeConsuming, Error: err})
 	}()
@@ -50,45 +51,48 @@ func (base *BaseExecutor) Query(query string, args ...interface{}) (results cont
 	rows, err := base.executor.Queryx(query, args...)
 	timeConsuming = time.Now().Sub(startAt)
 	if err != nil {
-		return nil, err
+		return nil, exceptions.WithError(err)
 	}
 
-	return ParseRowsToCollection(rows)
+	list, parseErr := ParseRowsToCollection(rows)
+	return list, exceptions.WithError(parseErr)
 }
 
-func (base *BaseExecutor) Get(dest interface{}, query string, args ...interface{}) (err error) {
+func (base *BaseExecutor) Get(dest any, query string, args ...any) (err contracts.Exception) {
 	query = base.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
-			err = exceptions.ResolveException(recover())
+			err = exceptions.WrapException(recover())
 		}
 
 		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 	}()
-	return base.executor.Get(dest, query, args...)
+	return exceptions.WithError(base.executor.Get(dest, query, args...))
 }
 
-func (base *BaseExecutor) Select(dest interface{}, query string, args ...interface{}) (err error) {
+func (base *BaseExecutor) Select(dest any, query string, args ...any) (err contracts.Exception) {
 	query = base.getStatement(query)
 	var startAt = time.Now()
 	defer func() {
 		if err == nil {
-			err = exceptions.ResolveException(recover())
+			err = exceptions.WrapException(recover())
 		}
 		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
 	}()
-	return base.executor.Get(dest, query, args...)
+	return exceptions.WithError(base.executor.Select(dest, query, args...))
 }
 
-func (base *BaseExecutor) Exec(query string, args ...interface{}) (result contracts.Result, err error) {
+func (base *BaseExecutor) Exec(query string, args ...any) (result contracts.Result, exception contracts.Exception) {
 	query = base.getStatement(query)
 	var startAt = time.Now()
+	var err error
 	defer func() {
 		if err == nil {
-			err = exceptions.ResolveException(recover())
+			exception = exceptions.WrapException(recover())
 		}
-		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: exception})
 	}()
-	return base.executor.Exec(query, args...)
+	result, err = base.executor.Exec(query, args...)
+	return result, exceptions.WithError(err)
 }

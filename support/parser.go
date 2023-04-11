@@ -23,11 +23,11 @@ func ParseRows(rows *sqlx.Rows) (results []contracts.Fields, err error) {
 
 	columnsLen := len(columns)
 	for rows.Next() {
-		var colVar = make([]interface{}, columnsLen)
+		var colVar = make([]any, columnsLen)
 		for i := 0; i < columnsLen; i++ {
 			SetColVarType(&colVar, i, colTypes[i].DatabaseTypeName())
 		}
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		if scanErr := rows.Scan(colVar...); scanErr != nil {
 			panic(scanErr)
 		}
@@ -39,15 +39,15 @@ func ParseRows(rows *sqlx.Rows) (results []contracts.Fields, err error) {
 	return
 }
 
-func ParseRowsToCollection(rows *sqlx.Rows) (contracts.Collection, error) {
+func ParseRowsToCollection(rows *sqlx.Rows) (contracts.Collection[contracts.Fields], error) {
 	data, parseErr := ParseRows(rows)
 	if parseErr != nil {
 		return nil, parseErr
 	}
-	return collection.MustNew(data), nil
+	return collection.New(data), nil
 }
 
-func SetColVarType(colVar *[]interface{}, i int, typeName string) {
+func SetColVarType(colVar *[]any, i int, typeName string) {
 	switch typeName {
 	case "INT", "TINYINT", "MEDIUMINT", "SMALLINT", "BIGINT":
 		var s sql.NullInt64
@@ -62,12 +62,12 @@ func SetColVarType(colVar *[]interface{}, i int, typeName string) {
 		var s sql.NullString
 		(*colVar)[i] = &s
 	default:
-		var s interface{}
+		var s any
 		(*colVar)[i] = &s
 	}
 }
 
-func SetResultValue(result *map[string]interface{}, index string, colVar interface{}, typeName string) {
+func SetResultValue(result *map[string]any, index string, colVar any, typeName string) {
 	switch typeName {
 	case "INT", "TINYINT", "MEDIUMINT", "SMALLINT", "BIGINT":
 		temp := *(colVar.(*sql.NullInt64))

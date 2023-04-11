@@ -31,43 +31,40 @@ func WithWrapper(db *sqlx.DB, dispatcher contracts.EventDispatcher, wrapper func
 	}
 }
 
-func (base *Base) Begin() (contracts.DBTx, error) {
+func (base *Base) Begin() (contracts.DBTx, contracts.Exception) {
 	sqlxTx, err := base.db.Beginx()
 	if err != nil {
-		return nil, err
+		return nil, exceptions.WithError(err)
 	}
-	return tx.New(sqlxTx, base.events), err
+	return tx.New(sqlxTx, base.events), nil
 }
 
-func (base *Base) Transaction(fn func(tx contracts.SqlExecutor) error) (err error) {
-	sqlxTx, err := base.Begin()
-	if err != nil {
-		return &exceptions2.BeginException{Err: err}
+func (base *Base) Transaction(fn func(tx contracts.SqlExecutor) contracts.Exception) (e contracts.Exception) {
+	sqlxTx, e := base.Begin()
+	if e != nil {
+		return &exceptions2.BeginException{Err: e}
 	}
 
-	defer func() { // 处理 panic 情况
+	defer func() {
 		if recoverErr := recover(); recoverErr != nil {
 			rollbackErr := sqlxTx.Rollback()
-			err = recoverErr.(error)
+			e = exceptions.WithRecover(recoverErr)
 			if rollbackErr != nil {
-				err = &exceptions2.RollbackException{
-					Err:      rollbackErr,
-					Previous: exceptions.WithError(err),
-				}
+				e = &exceptions2.RollbackException{Err: rollbackErr, Previous: e}
 			} else {
-				err = &exceptions2.TransactionException{Err: err}
+				e = &exceptions2.TransactionException{Err: e}
 			}
 		}
 	}()
 
-	err = fn(sqlxTx)
+	e = fn(sqlxTx)
 
-	if err != nil {
+	if e != nil {
 		rollbackErr := sqlxTx.Rollback()
 		if rollbackErr != nil {
-			return &exceptions2.RollbackException{Err: rollbackErr, Previous: exceptions.WithError(err)}
+			return &exceptions2.RollbackException{Err: rollbackErr, Previous: e}
 		}
-		return &exceptions2.TransactionException{Err: err}
+		return &exceptions2.TransactionException{Err: e}
 	}
 
 	return sqlxTx.Commit()

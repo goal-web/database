@@ -6,6 +6,7 @@ import (
 	_ "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/database/support"
+	"github.com/goal-web/supports/exceptions"
 	"github.com/goal-web/supports/logs"
 	"github.com/goal-web/supports/utils"
 	"github.com/jmoiron/sqlx"
@@ -16,12 +17,18 @@ type Clickhouse struct {
 	support.Executor
 }
 
-func (c Clickhouse) Begin() (contracts.DBTx, error) {
-	return nil, errors.New("begin is not supported")
+type TransactionException = exceptions.Exception
+
+var exception = &TransactionException{
+	Err: errors.New("begin is not supported"),
 }
 
-func (c Clickhouse) Transaction(f func(executor contracts.SqlExecutor) error) error {
-	return errors.New("transaction is not supported")
+func (c Clickhouse) Begin() (contracts.DBTx, contracts.Exception) {
+	return nil, exception
+}
+
+func (c Clickhouse) Transaction(f func(executor contracts.SqlExecutor) contracts.Exception) contracts.Exception {
+	return exception
 }
 
 func ClickHouseConnector(config contracts.Fields, events contracts.EventDispatcher) contracts.DBConnection {

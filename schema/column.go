@@ -14,7 +14,7 @@ type ColumnDefinition struct {
 	CharsetValue         string
 	CollationValue       string
 	CommentValue         string
-	DefaultValue         interface{}
+	DefaultValue         any
 	IsFirst              bool
 	StartValue           int
 	IndexName            string
@@ -82,7 +82,7 @@ func (column *ColumnDefinition) Comment(comment string) *ColumnDefinition {
 }
 
 // Default Specify a "default" value for the column
-func (column *ColumnDefinition) Default(value interface{}) *ColumnDefinition {
+func (column *ColumnDefinition) Default(value any) *ColumnDefinition {
 	column.DefaultValue = value
 	return column
 }

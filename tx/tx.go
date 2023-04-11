@@ -12,12 +12,18 @@ type Tx struct {
 	events contracts.EventDispatcher
 }
 
-func (t *Tx) Commit() error {
-	return t.tx.Commit()
+func (t *Tx) Commit() contracts.Exception {
+	if err := t.tx.Commit(); err != nil {
+		return &CommitException{Err: err}
+	}
+	return nil
 }
 
-func (t *Tx) Rollback() error {
-	return t.tx.Rollback()
+func (t *Tx) Rollback() contracts.Exception {
+	if err := t.tx.Rollback(); err != nil {
+		return &RollbackException{Err: err}
+	}
+	return nil
 }
 
 func New(tx *sqlx.Tx, events contracts.EventDispatcher) contracts.DBTx {

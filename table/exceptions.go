@@ -4,7 +4,7 @@ import "github.com/goal-web/contracts"
 
 type Exception struct {
 	Sql      string
-	Bindings []interface{}
+	Bindings []any
 	Err      error
 	previous contracts.Exception
 }

@@ -2,80 +2,81 @@ package table
 
 import (
 	"database/sql"
+	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/exceptions"
 )
 
-func (table *Table) Count(columns ...string) int64 {
+func (table *Table[T]) CountE(columns ...string) (int64, contracts.Exception) {
 	queryStatement, bindings := table.WithCount(columns...).SelectSql()
 	var num int64
 	err := table.getExecutor().Get(&num, queryStatement, bindings...)
 	if err != nil && err != sql.ErrNoRows {
-		exceptions.Throw(SelectException{
+		return 0, &SelectException{
 			Sql:      queryStatement,
 			Bindings: bindings,
 			Err:      err,
 			previous: exceptions.WithError(err),
-		})
+		}
 	}
-	return num
+	return num, nil
 }
 
-func (table *Table) Avg(column string, as ...string) int64 {
-	queryStatement, bindings := table.WithAvg(column, as...).SelectSql()
-	var num int64
+func (table *Table[T]) AvgE(column string) (float64, contracts.Exception) {
+	queryStatement, bindings := table.WithAvg(column).SelectSql()
+	var num float64
 	err := table.getExecutor().Get(&num, queryStatement, bindings...)
 	if err != nil && err != sql.ErrNoRows {
-		exceptions.Throw(SelectException{
+		return 0, &SelectException{
 			Sql:      queryStatement,
 			Bindings: bindings,
 			Err:      err,
 			previous: exceptions.WithError(err),
-		})
+		}
 	}
-	return num
+	return num, nil
 }
 
-func (table *Table) Sum(column string, as ...string) int64 {
-	queryStatement, bindings := table.WithSum(column, as...).SelectSql()
-	var num int64
+func (table *Table[T]) SumE(column string) (float64, contracts.Exception) {
+	queryStatement, bindings := table.WithSum(column).SelectSql()
+	var num float64
 	err := table.getExecutor().Get(&num, queryStatement, bindings...)
 	if err != nil && err != sql.ErrNoRows {
-		exceptions.Throw(SelectException{
+		return 0, &SelectException{
 			Sql:      queryStatement,
 			Bindings: bindings,
 			Err:      err,
 			previous: exceptions.WithError(err),
-		})
+		}
 	}
-	return num
+	return num, nil
 }
 
-func (table *Table) Max(column string, as ...string) int64 {
-	queryStatement, bindings := table.WithMax(column, as...).SelectSql()
-	var num int64
+func (table *Table[T]) MaxE(column string) (float64, contracts.Exception) {
+	queryStatement, bindings := table.WithMax(column).SelectSql()
+	var num float64
 	err := table.getExecutor().Get(&num, queryStatement, bindings...)
 	if err != nil && err != sql.ErrNoRows {
-		exceptions.Throw(SelectException{
+		return 0, &SelectException{
 			Sql:      queryStatement,
 			Bindings: bindings,
 			Err:      err,
 			previous: exceptions.WithError(err),
-		})
+		}
 	}
-	return num
+	return num, nil
 }
 
-func (table *Table) Min(column string, as ...string) int64 {
-	queryStatement, bindings := table.WithMin(column, as...).SelectSql()
-	var num int64
+func (table *Table[T]) MinE(column string) (float64, contracts.Exception) {
+	queryStatement, bindings := table.WithMin(column).SelectSql()
+	var num float64
 	err := table.getExecutor().Get(&num, queryStatement, bindings...)
 	if err != nil && err != sql.ErrNoRows {
-		exceptions.Throw(SelectException{
+		return 0, &SelectException{
 			Sql:      queryStatement,
 			Bindings: bindings,
 			Err:      err,
 			previous: exceptions.WithError(err),
-		})
+		}
 	}
-	return num
+	return num, nil
 }

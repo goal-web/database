@@ -4,7 +4,7 @@ import "time"
 
 type QueryExecuted struct {
 	Sql        string
-	Bindings   []interface{}
+	Bindings   []any
 	Connection string
 	Time       time.Duration
 	Error      error

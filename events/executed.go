@@ -10,10 +10,10 @@ type QueryExecuted struct {
 	Error      error
 }
 
-func (this *QueryExecuted) Event() string {
+func (event *QueryExecuted) Event() string {
 	return "QUERY_EXECUTED"
 }
 
-func (this *QueryExecuted) Sync() bool {
+func (event *QueryExecuted) Sync() bool {
 	return true
 }

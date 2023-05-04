@@ -76,7 +76,7 @@ func (table *Table[T]) Update(fields contracts.Fields) int64 {
 // Execute a query for a single record by ID.
 func (table *Table[T]) FindOrFail(key any) T {
 	result := table.Find(key)
-	if result != nil {
+	if result == nil {
 		panic(NotFoundException{Err: sql.ErrNoRows})
 	}
 	return *result

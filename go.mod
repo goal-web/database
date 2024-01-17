@@ -9,7 +9,7 @@ require (
 	github.com/goal-web/collection v0.2.0
 	github.com/goal-web/config v0.2.0
 	github.com/goal-web/contracts v0.2.0
-	github.com/goal-web/querybuilder v0.2.0
+	github.com/goal-web/querybuilder v0.2.1
 	github.com/goal-web/supports v0.2.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.4

@@ -36,8 +36,8 @@ github.com/goal-web/container v0.2.0 h1:kiDhpOzXbvTvUbXCMqukXzNlHxMSW2VTMMcDisj3
 github.com/goal-web/container v0.2.0/go.mod h1:2ziPdY9aQjdeHYGoxK19V24du/DDUc/QxRb9bszGaFc=
 github.com/goal-web/contracts v0.2.0 h1:CAk+mLD2dC//DiCV9TAUSN1zopWSrPZ8+/vCxs+cu8E=
 github.com/goal-web/contracts v0.2.0/go.mod h1:33koNCIiQ7GzBmYycynenVtv5E+Jq7lWGZ8vKi5uXJQ=
-github.com/goal-web/querybuilder v0.2.1 h1:oPD5QTApGx2lwmeDcLURlALU7oBNC43rFIWcQyFRdS8=
-github.com/goal-web/querybuilder v0.2.1/go.mod h1:+eajJiTfWLbJRxKnfoNKwL8G0RbxwIkbh2drExih+Dc=
+github.com/goal-web/querybuilder v0.2.2 h1:qz4/YY0hgEQwRqcil+d3M3XiQhHW5lGFCLroT21p4ak=
+github.com/goal-web/querybuilder v0.2.2/go.mod h1:+eajJiTfWLbJRxKnfoNKwL8G0RbxwIkbh2drExih+Dc=
 github.com/goal-web/supports v0.2.0 h1:I1MuDcyOSo9JJprXwvyPeV99kn/Zs/VQEM7dDsv6VyY=
 github.com/goal-web/supports v0.2.0/go.mod h1:OZFq18eCd+9atA7re2gbNMZ2zWGdpuSS8WmCRsqhGm4=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=

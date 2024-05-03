@@ -11,6 +11,7 @@ import (
 var InsertError = errors.New("insert statement execution failed")
 
 func (table *Table[T]) CreateE(fields contracts.Fields) (*T, contracts.Exception) {
+	table.createdTime(fields)
 	sql, bindings := table.CreateSql(fields)
 	result, err := table.getExecutor().Exec(sql, bindings...)
 	if err != nil {
@@ -35,6 +36,9 @@ func (table *Table[T]) CreateE(fields contracts.Fields) (*T, contracts.Exception
 }
 
 func (table *Table[T]) InsertE(values ...contracts.Fields) contracts.Exception {
+	for i := range values {
+		table.createdTime(values[i])
+	}
 	sql, bindings := table.InsertSql(values)
 	_, exception := table.getExecutor().Exec(sql, bindings...)
 
@@ -62,6 +66,9 @@ func (table *Table[T]) InsertGetId(values ...contracts.Fields) int64 {
 }
 
 func (table *Table[T]) InsertGetIdE(values ...contracts.Fields) (int64, contracts.Exception) {
+	for i := range values {
+		table.createdTime(values[i])
+	}
 	sql, bindings := table.InsertSql(values)
 	result, exception := table.getExecutor().Exec(sql, bindings...)
 
@@ -89,6 +96,9 @@ func (table *Table[T]) InsertGetIdE(values ...contracts.Fields) (int64, contract
 }
 
 func (table *Table[T]) InsertOrIgnoreE(values ...contracts.Fields) (int64, contracts.Exception) {
+	for i := range values {
+		table.createdTime(values[i])
+	}
 	sql, bindings := table.InsertIgnoreSql(values)
 	result, exception := table.getExecutor().Exec(sql, bindings...)
 
@@ -134,6 +144,9 @@ func (table *Table[T]) InsertOrReplace(values ...contracts.Fields) int64 {
 }
 
 func (table *Table[T]) InsertOrReplaceE(values ...contracts.Fields) (int64, contracts.Exception) {
+	for i := range values {
+		table.createdTime(values[i])
+	}
 	sql, bindings := table.InsertReplaceSql(values)
 	result, exception := table.getExecutor().Exec(sql, bindings...)
 

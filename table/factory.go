@@ -23,9 +23,11 @@ func getFactory() contracts.DBFactory {
 func getTable[T any](name string) *Table[T] {
 	builder := querybuilder.NewBuilder[T](name)
 	instance := &Table[T]{
-		QueryBuilder: builder,
-		primaryKey:   "id",
-		table:        name,
+		QueryBuilder:      builder,
+		primaryKey:        "id",
+		table:             name,
+		createdTimeColumn: "created_at",
+		UpdatedTimeColumn: "updated_at",
 	}
 	builder.Bind(instance)
 	return instance

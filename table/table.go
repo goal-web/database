@@ -11,9 +11,11 @@ type Table[T any] struct {
 	contracts.QueryBuilder[T]
 	executor contracts.SqlExecutor
 
-	table      string
-	primaryKey string
-	class      contracts.Class[T]
+	table             string
+	primaryKey        string
+	class             contracts.Class[T]
+	createdTimeColumn string
+	UpdatedTimeColumn string
 }
 
 // SetConnection 参数要么是 contracts.DBConnection 要么是 string
@@ -35,6 +37,18 @@ func (table *Table[T]) SetClass(class contracts.Class[T]) *Table[T] {
 // SetPrimaryKey 设置主键
 func (table *Table[T]) SetPrimaryKey(name string) *Table[T] {
 	table.primaryKey = name
+	return table
+}
+
+// SetCreatedTimeColumn 设置创建时间字段
+func (table *Table[T]) SetCreatedTimeColumn(column string) *Table[T] {
+	table.createdTimeColumn = column
+	return table
+}
+
+// SetUpdatedTimeColumn 设置更新时间字段
+func (table *Table[T]) SetUpdatedTimeColumn(column string) *Table[T] {
+	table.UpdatedTimeColumn = column
 	return table
 }
 

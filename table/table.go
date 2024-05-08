@@ -3,12 +3,13 @@ package table
 import (
 	"errors"
 	"github.com/goal-web/contracts"
+	"github.com/goal-web/querybuilder"
 	"github.com/goal-web/supports/exceptions"
 	"github.com/goal-web/supports/utils"
 )
 
 type Table[T any] struct {
-	contracts.QueryBuilder[T]
+	*querybuilder.Builder[T]
 	executor contracts.SqlExecutor
 
 	table             string

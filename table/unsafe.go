@@ -106,7 +106,9 @@ func (table *Table[T]) FirstWhereE(column string, args ...any) (*T, contracts.Ex
 // Paginate 对给定的查询进行分页。
 // paginate the given query.
 func (table *Table[T]) Paginate(perPage int64, current ...int64) (contracts.Collection[T], int64) {
-	return table.WithPagination(perPage, current...).Get(), table.Count()
+	rawSelects := table.Selects
+	count := table.Count()
+	return table.Select(rawSelects...).WithPagination(perPage, current...).Get(), count
 }
 
 // SimplePaginate 将给定的查询分页成一个简单的分页器

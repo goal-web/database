@@ -9,12 +9,13 @@ require (
 	github.com/goal-web/collection v0.2.0
 	github.com/goal-web/config v0.2.0
 	github.com/goal-web/contracts v0.2.0
-	github.com/goal-web/querybuilder v0.2.4
+	github.com/goal-web/querybuilder v0.2.5
 	github.com/goal-web/supports v0.2.0
+	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.4
 	github.com/mattn/go-sqlite3 v1.14.10
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.9.0
 )
 
 require (

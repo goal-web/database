@@ -2,13 +2,14 @@ package table
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/goal-web/collection"
 	"github.com/goal-web/contracts"
 )
 
 func (table *Table[T]) fetch(query string, bindings ...any) (contracts.Collection[T], contracts.Exception) {
 	rows, err := table.getExecutor().Query(query, bindings...)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) && err.Error() != sql.ErrNoRows.Error() {
 		return collection.New[T](nil), &SelectException{
 			Sql:      query,
 			Bindings: bindings,

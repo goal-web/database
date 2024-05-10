@@ -27,8 +27,8 @@ func (table *Table[T]) CreateE(fields contracts.Fields) (*T, contracts.Exception
 		logs.WithError(lastIdErr).Debug("Table.Create: get last insert id failed")
 	}
 
-	if _, existsPrimaryKey := fields[table.primaryKey]; !existsPrimaryKey && lastIdErr == nil {
-		fields[table.primaryKey] = id
+	if _, existsPrimaryKey := fields[table.primaryKeyField]; !existsPrimaryKey && lastIdErr == nil {
+		fields[table.primaryKeyField] = id
 	}
 
 	instance := table.class.New(fields)
@@ -173,12 +173,12 @@ func (table *Table[T]) InsertOrReplaceE(values ...contracts.Fields) (int64, cont
 	return rowsAffected, nil
 }
 
-func (table *Table[T]) FirstOrCreate(where contracts.Fields, values ...contracts.Fields) T {
+func (table *Table[T]) FirstOrCreate(where contracts.Fields, values ...contracts.Fields) *T {
 	instance, err := table.FirstOrCreateE(where, values...)
 	if err != nil {
 		panic(err)
 	}
-	return *instance
+	return instance
 }
 
 func (table *Table[T]) FirstOrCreateE(where contracts.Fields, values ...contracts.Fields) (*T, contracts.Exception) {

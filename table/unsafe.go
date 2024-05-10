@@ -57,12 +57,12 @@ func (table *Table[T]) Min(column string) float64 {
 
 // Create 保存新模型并返回实例
 // Save a new model and return the instance.
-func (table *Table[T]) Create(fields contracts.Fields) T {
+func (table *Table[T]) Create(fields contracts.Fields) *T {
 	result, err := table.CreateE(fields)
 	if err != nil {
 		panic(err)
 	}
-	return *result
+	return result
 }
 
 // Update 更新数据库中的记录
@@ -74,19 +74,19 @@ func (table *Table[T]) Update(fields contracts.Fields) int64 {
 
 // FindOrFail 按 ID 对单个记录执行查询
 // Execute a query for a single record by ID.
-func (table *Table[T]) FindOrFail(key any) T {
+func (table *Table[T]) FindOrFail(key any) *T {
 	result := table.Find(key)
 	if result == nil {
 		panic(NotFoundException{Err: sql.ErrNoRows})
 	}
-	return *result
+	return result
 }
 
 // FirstOr 执行查询并获得第一个结果或调用回调
 // Execute the query and get the first result or call a callback.
-func (table *Table[T]) FirstOr(provider contracts.InstanceProvider[T]) T {
+func (table *Table[T]) FirstOr(provider contracts.InstanceProvider[*T]) *T {
 	if result := table.First(); result != nil {
-		return *result
+		return result
 	}
 	return provider()
 }
@@ -105,7 +105,7 @@ func (table *Table[T]) FirstWhereE(column string, args ...any) (*T, contracts.Ex
 
 // Paginate 对给定的查询进行分页。
 // paginate the given query.
-func (table *Table[T]) Paginate(perPage int64, current ...int64) (contracts.Collection[T], int64) {
+func (table *Table[T]) Paginate(perPage int64, current ...int64) (contracts.Collection[*T], int64) {
 	rawSelects := table.Selects
 	count := table.Count()
 	return table.Select(rawSelects...).WithPagination(perPage, current...).Get(), count
@@ -113,6 +113,6 @@ func (table *Table[T]) Paginate(perPage int64, current ...int64) (contracts.Coll
 
 // SimplePaginate 将给定的查询分页成一个简单的分页器
 // paginate the given query into a simple paginator.
-func (table *Table[T]) SimplePaginate(perPage int64, current ...int64) contracts.Collection[T] {
+func (table *Table[T]) SimplePaginate(perPage int64, current ...int64) contracts.Collection[*T] {
 	return table.WithPagination(perPage, current...).Get()
 }

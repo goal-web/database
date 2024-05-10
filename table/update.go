@@ -68,12 +68,12 @@ func (table *Table[T]) UpdateOrCreateE(attributes contracts.Fields, values contr
 	return table.CreateE(attributes)
 }
 
-func (table *Table[T]) UpdateOrCreate(attributes contracts.Fields, values contracts.Fields) T {
+func (table *Table[T]) UpdateOrCreate(attributes contracts.Fields, values contracts.Fields) *T {
 	result, e := table.UpdateOrCreateE(attributes, values)
 	if e != nil {
 		panic(e)
 	}
-	return *result
+	return result
 }
 
 func (table *Table[T]) UpdateE(fields contracts.Fields) (int64, contracts.Exception) {

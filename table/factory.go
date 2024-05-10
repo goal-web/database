@@ -24,7 +24,7 @@ func getTable[T any](name string) *Table[T] {
 	builder := querybuilder.NewBuilder[T](name)
 	instance := &Table[T]{
 		Builder:           builder,
-		primaryKey:        "id",
+		primaryKeyField:   "id",
 		table:             name,
 		createdTimeColumn: "created_at",
 		UpdatedTimeColumn: "updated_at",
@@ -48,10 +48,6 @@ func Auth(class contracts.Class[contracts.Authenticatable], table, primaryKey st
 
 func ArrayQuery(name string) *Table[contracts.Fields] {
 	return getTable[contracts.Fields](name).SetClass(arrayClass[contracts.Fields]{})
-}
-
-func FromModel[T any](model contracts.Model[T]) *Table[T] {
-	return WithConnection[T](model.GetTable(), model.GetConnection()).SetClass(model.GetClass()).SetPrimaryKey(model.GetPrimaryKey())
 }
 
 // WithConnection 使用指定链接

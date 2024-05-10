@@ -102,7 +102,7 @@ func TestMysqlDatabaseWithoutApplication(t *testing.T) {
 
 	assert.True(t, table.ArrayQuery("users").Count() == 0)
 
-	user := table.ArrayQuery("users").Create(contracts.Fields{
+	user := *table.ArrayQuery("users").Create(contracts.Fields{
 		"name": "testing",
 	})
 	assert.NotNil(t, user)
@@ -166,13 +166,13 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	assert.NoError(t, err, err)
 	assert.True(t, ageMax == 18)
 
-	err = table.ArrayQuery("users").Chunk(10, func(collection contracts.Collection[contracts.Fields], page int) contracts.Exception {
+	err = table.ArrayQuery("users").Chunk(10, func(collection contracts.Collection[*contracts.Fields], page int) contracts.Exception {
 		assert.True(t, page == 1)
 		assert.True(t, collection.Count() == 1)
 
-		collection.Each(func(i int, fields contracts.Fields) contracts.Fields {
-			fmt.Println(i, fields)
-			assert.True(t, fields["name"] == "testing")
+		collection.Each(func(i int, fields *contracts.Fields) *contracts.Fields {
+			fmt.Println(i, *fields)
+			assert.True(t, (*fields)["name"] == "testing")
 			return nil
 		})
 
@@ -184,8 +184,9 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	assert.NotNil(t, user)
 	assert.NoError(t, exception, exception)
 
-	err = table.ArrayQuery("users").ChunkById(1, func(collection contracts.Collection[contracts.Fields], page int) (any, contracts.Exception) {
-		var result = *collection.First()
+	err = table.ArrayQuery("users").ChunkById(1, func(collection contracts.Collection[*contracts.Fields], page int) (any, contracts.Exception) {
+		var p, _ = collection.First()
+		result := *p
 		switch page {
 		case 1:
 			assert.True(t, result["name"] == "testing")
@@ -197,8 +198,9 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	})
 	assert.NoError(t, err, err)
 
-	err = table.ArrayQuery("users").ChunkByIdDesc(1, func(collection contracts.Collection[contracts.Fields], page int) (any, contracts.Exception) {
-		var result = *collection.First()
+	err = table.ArrayQuery("users").ChunkByIdDesc(1, func(collection contracts.Collection[*contracts.Fields], page int) (any, contracts.Exception) {
+		var p, _ = collection.First()
+		result := *p
 		switch page {
 		case 2:
 			assert.True(t, result["name"] == "testing")
@@ -271,10 +273,11 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	users, err := table.Query[User]("users").SelectForUpdateE()
 	assert.NoError(t, err, err)
 	assert.NotNil(t, users)
-	assert.True(t, users.Last().Age == 10)
+	lastUser, _ := users.Last()
+	assert.True(t, lastUser.Age == 10)
 
-	assert.True(t, table.Query[User]("users").Where("id", 0).FirstOr(func() User {
-		return *user
+	assert.True(t, table.Query[User]("users").Where("id", 0).FirstOr(func() *User {
+		return user
 	}).Name == "testing6")
 
 	assert.Error(t, utils.NoPanic(func() {

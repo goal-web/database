@@ -13,7 +13,7 @@ type Table[T any] struct {
 	executor contracts.SqlExecutor
 
 	table             string
-	primaryKey        string
+	primaryKeyField   string
 	class             contracts.Class[T]
 	createdTimeColumn string
 	UpdatedTimeColumn string
@@ -37,7 +37,7 @@ func (table *Table[T]) SetClass(class contracts.Class[T]) *Table[T] {
 
 // SetPrimaryKey 设置主键
 func (table *Table[T]) SetPrimaryKey(name string) *Table[T] {
-	table.primaryKey = name
+	table.primaryKeyField = name
 	return table
 }
 

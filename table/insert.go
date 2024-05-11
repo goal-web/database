@@ -32,6 +32,7 @@ func (table *Table[T]) CreateE(fields contracts.Fields) (*T, contracts.Exception
 	}
 
 	instance := table.class.New(fields)
+
 	return &instance, nil
 }
 

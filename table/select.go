@@ -24,18 +24,20 @@ func (table *Table[T]) fetch(query string, bindings ...any) (contracts.Collectio
 		item := table.class.NewByTag(fields, "db")
 		value := reflect.ValueOf(&item)
 
-		_, isModel := value.Elem().FieldByName("Model").Interface().(Model[T])
-		if isModel {
-
-			value.Elem().FieldByName("Model").Set(reflect.ValueOf(
-				Model[T]{
-					class:           table.class,
-					table:           table.table,
-					primaryKeyField: table.primaryKeyField,
-					data:            &item,
-					value:           value,
-				}))
+		if value.Elem().Kind() != reflect.Interface {
+			_, isModel := value.Elem().FieldByName("Model").Interface().(Model[T])
+			if isModel {
+				value.Elem().FieldByName("Model").Set(reflect.ValueOf(
+					Model[T]{
+						Class:           table.class,
+						Table:           table.table,
+						PrimaryKeyField: table.primaryKeyField,
+						Data:            &item,
+						Value:           value,
+					}))
+			}
 		}
+
 		list[i] = &item
 	})
 

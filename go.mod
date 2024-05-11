@@ -10,7 +10,7 @@ require (
 	github.com/goal-web/config v0.3.0
 	github.com/goal-web/contracts v0.3.0
 	github.com/goal-web/querybuilder v0.3.1
-	github.com/goal-web/supports v0.3.0
+	github.com/goal-web/supports v0.3.1
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.4

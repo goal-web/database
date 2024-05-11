@@ -42,8 +42,8 @@ func Class[T any](class contracts.Class[T], table string) *Table[T] {
 	return Query[T](table).SetClass(class)
 }
 
-func Auth(class contracts.Class[contracts.Authenticatable], table, primaryKey string) contracts.Query[contracts.Authenticatable] {
-	return Query[contracts.Authenticatable](table).SetClass(class).SetPrimaryKey(primaryKey)
+func Auth[T contracts.Authenticatable](class contracts.Class[T], table, primaryKey string) contracts.Query[T] {
+	return Query[T](table).SetClass(class).SetPrimaryKey(primaryKey)
 }
 
 func ArrayQuery(name string) *Table[contracts.Fields] {

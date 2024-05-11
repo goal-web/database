@@ -35,6 +35,18 @@ func (table *Table[T]) SetClass(class contracts.Class[T]) *Table[T] {
 	return table
 }
 
+func (table *Table[T]) GetClass() contracts.Class[T] {
+	return table.class
+}
+
+func (table *Table[T]) GetTable() string {
+	return table.table
+}
+
+func (table *Table[T]) GetPrimayKeyField() string {
+	return table.primaryKeyField
+}
+
 // SetPrimaryKey 设置主键
 func (table *Table[T]) SetPrimaryKey(name string) *Table[T] {
 	table.primaryKeyField = name

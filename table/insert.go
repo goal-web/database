@@ -6,6 +6,7 @@ import (
 	"github.com/goal-web/supports/exceptions"
 	"github.com/goal-web/supports/logs"
 	"github.com/goal-web/supports/utils"
+	"reflect"
 )
 
 var InsertError = errors.New("insert statement execution failed")
@@ -32,6 +33,15 @@ func (table *Table[T]) CreateE(fields contracts.Fields) (*T, contracts.Exception
 	}
 
 	instance := table.class.New(fields)
+
+	value := reflect.ValueOf(&instance)
+	value.Elem().FieldByName("Model").Set(reflect.ValueOf(Model[T]{
+		Table:           table.GetTable(),
+		PrimaryKeyField: table.GetPrimayKeyField(),
+		Value:           value,
+		Class:           table.GetClass(),
+		Data:            &instance,
+	}))
 
 	return &instance, nil
 }

@@ -16,7 +16,6 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/apex/log v1.9.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/goal-web/container v0.3.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/modood/table v0.0.0-20200225102042-88de94bb9876 // indirect

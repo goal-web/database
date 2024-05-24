@@ -49,7 +49,7 @@ func (base *BaseExecutor) Query(query string, args ...any) (results contracts.Co
 	}()
 	var startAt = time.Now()
 	rows, err := base.executor.Queryx(query, args...)
-	timeConsuming = time.Now().Sub(startAt)
+	timeConsuming = time.Since(startAt)
 	if err != nil {
 		return nil, exceptions.WithError(err)
 	}
@@ -66,7 +66,7 @@ func (base *BaseExecutor) Get(dest any, query string, args ...any) (err contract
 			err = exceptions.WrapException(recover())
 		}
 
-		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Since(startAt), Error: err})
 	}()
 	return exceptions.WithError(base.executor.Get(dest, query, args...))
 }
@@ -78,7 +78,7 @@ func (base *BaseExecutor) Select(dest any, query string, args ...any) (err contr
 		if err == nil {
 			err = exceptions.WrapException(recover())
 		}
-		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: err})
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Since(startAt), Error: err})
 	}()
 	return exceptions.WithError(base.executor.Select(dest, query, args...))
 }
@@ -91,7 +91,7 @@ func (base *BaseExecutor) Exec(query string, args ...any) (result contracts.Resu
 		if err == nil {
 			exception = exceptions.WrapException(recover())
 		}
-		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Now().Sub(startAt), Error: exception})
+		base.dispatchEvent(&events.QueryExecuted{Sql: query, Bindings: args, Time: time.Since(startAt), Error: exception})
 	}()
 	result, err = base.executor.Exec(query, args...)
 	return result, exceptions.WithError(err)

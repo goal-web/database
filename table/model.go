@@ -8,20 +8,12 @@ import (
 )
 
 type Model[T any] struct {
-	Class      contracts.Class[T]
-	Table      string
+	Class           contracts.Class[T]
+	Table           string
 	connection      string
 	PrimaryKeyField string
-	Data  *T
-	Value reflect.Value
-}
-
-func (model Model[T]) InitModel(class contracts.Class[T], table, PrimaryKeyField string, data *T, value reflect.Value) {
-	model.Class = class
-	model.Table = table
-	model.PrimaryKeyField = PrimaryKeyField
-	model.Data = data
-	model.Value = value
+	Data            *T
+	Value           reflect.Value
 }
 
 func (model Model[T]) Exists() bool {
@@ -79,7 +71,6 @@ func (model Model[T]) Refresh() contracts.Exception {
 			model.Value.Elem().FieldByName(field.Name).Set(value)
 		}
 	})
-	data = nil
 
 	return err
 }

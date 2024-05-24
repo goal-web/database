@@ -35,13 +35,19 @@ func (table *Table[T]) CreateE(fields contracts.Fields) (*T, contracts.Exception
 	instance := table.class.New(fields)
 
 	value := reflect.ValueOf(&instance)
-	value.Elem().FieldByName("Model").Set(reflect.ValueOf(Model[T]{
-		Table:           table.GetTable(),
-		PrimaryKeyField: table.GetPrimayKeyField(),
-		Value:           value,
-		Class:           table.GetClass(),
-		Data:            &instance,
-	}))
+	if value.Elem().Kind() == reflect.Struct {
+		model := value.Elem().FieldByName("Model")
+
+		if model.CanSet() {
+			model.Set(reflect.ValueOf(Model[T]{
+				Table:           table.GetTable(),
+				PrimaryKeyField: table.GetPrimayKeyField(),
+				Value:           value,
+				Class:           table.GetClass(),
+				Data:            &instance,
+			}))
+		}
+	}
 
 	return &instance, nil
 }

@@ -26,7 +26,7 @@ func (table *Table[T]) ChunkById(size int, handler func(collection contracts.Col
 	var err contracts.Exception
 	var id any
 	for err == nil {
-		list, listErr := table.When(id != nil, func(q contracts.QueryBuilder[T]) contracts.Query[T] {
+		list, listErr := table.When(id != nil, func(q contracts.Query[T]) contracts.Query[T] {
 			return q.Where(table.primaryKeyField, ">", id)
 		}).Take(int64(size)).GetE()
 		if listErr != nil {
@@ -52,7 +52,7 @@ func (table *Table[T]) ChunkByIdDesc(size int, handler func(collection contracts
 	var id any
 	for err == nil {
 		list, listErr := table.OrderByDesc(table.primaryKeyField).
-			When(id != nil, func(q contracts.QueryBuilder[T]) contracts.Query[T] {
+			When(id != nil, func(q contracts.Query[T]) contracts.Query[T] {
 				return q.Where(table.primaryKeyField, "<", id)
 			}).Take(int64(size)).GetE()
 		if listErr != nil {

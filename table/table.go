@@ -74,7 +74,7 @@ func (table *Table[T]) getExecutor() contracts.SqlExecutor {
 }
 
 // SetExecutor 参数必须是 contracts.DBTx 实例
-func (table *Table[T]) SetExecutor(executor contracts.SqlExecutor) contracts.Query[T] {
+func (table *Table[T]) SetExecutor(executor contracts.SqlExecutor) contracts.QueryBuilder[T] {
 	table.executor = executor
 	return table
 }

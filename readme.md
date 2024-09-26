@@ -125,7 +125,7 @@ import (
 	"testing"
 )
 
-func getQuery(name string) contracts.Query[T] {
+func getQuery(name string) contracts.QueryBuilder[T] {
 	// 测试用例环境下的简易 goal 应用启动
 	app := initApp("/Users/qbhy/project/go/goal-web/goal/tests")
 

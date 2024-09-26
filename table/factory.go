@@ -42,7 +42,7 @@ func Class[T any](class contracts.Class[T], table string) *Table[T] {
 	return Query[T](table).SetClass(class)
 }
 
-func Auth[T contracts.Authenticatable](class contracts.Class[T], table, primaryKey string) contracts.Query[T] {
+func Auth[T contracts.Authenticatable](class contracts.Class[T], table, primaryKey string) contracts.QueryBuilder[T] {
 	return Query[T](table).SetClass(class).SetPrimaryKey(primaryKey)
 }
 
@@ -59,6 +59,6 @@ func WithConnection[T any](name string, connection any) *Table[T] {
 }
 
 // WithTX 使用TX
-func WithTX[T any](name string, tx contracts.DBTx) contracts.Query[T] {
+func WithTX[T any](name string, tx contracts.DBTx) contracts.QueryBuilder[T] {
 	return getTable[T](name).SetExecutor(tx)
 }

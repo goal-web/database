@@ -38,6 +38,11 @@ func Query[T any](name string) *Table[T] {
 	return getTable[T](name).SetClass(class2.Make[T]())
 }
 
+// NewQuery 将使用默认 connection
+func NewQuery[T any](name string, factory InstanceFactory[T]) *Table[T] {
+	return getTable[T](name).SetFactory(factory)
+}
+
 func Class[T any](class contracts.Class[T], table string) *Table[T] {
 	return Query[T](table).SetClass(class)
 }

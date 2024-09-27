@@ -8,6 +8,8 @@ import (
 	"github.com/goal-web/supports/utils"
 )
 
+type InstanceFactory[T any] func(fields contracts.Fields) *T
+
 type Table[T any] struct {
 	*querybuilder.Builder[T]
 	executor contracts.SqlExecutor
@@ -17,6 +19,8 @@ type Table[T any] struct {
 	class             contracts.Class[T]
 	createdTimeColumn string
 	UpdatedTimeColumn string
+
+	instanceFactory InstanceFactory[T]
 }
 
 // SetConnection 参数要么是 contracts.DBConnection 要么是 string
@@ -35,6 +39,12 @@ func (table *Table[T]) SetClass(class contracts.Class[T]) *Table[T] {
 	return table
 }
 
+// SetFactory 设置类
+func (table *Table[T]) SetFactory(factory InstanceFactory[T]) *Table[T] {
+	table.instanceFactory = factory
+	return table
+}
+
 func (table *Table[T]) GetClass() contracts.Class[T] {
 	return table.class
 }
@@ -43,7 +53,7 @@ func (table *Table[T]) GetTable() string {
 	return table.table
 }
 
-func (table *Table[T]) GetPrimayKeyField() string {
+func (table *Table[T]) GetPrimaryKeyField() string {
 	return table.primaryKeyField
 }
 

@@ -1,6 +1,6 @@
 module github.com/goal-web/database
 
-go 1.20
+go 1.23.1
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.0.9

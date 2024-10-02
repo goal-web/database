@@ -3,14 +3,19 @@ package database
 import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/database/table"
+	"github.com/goal-web/supports/utils"
 )
 
 type ServiceProvider struct {
 	app contracts.Application
+
+	optimizeLoad bool // 是否尽快连数据库
 }
 
-func NewService() contracts.ServiceProvider {
-	return &ServiceProvider{}
+func NewService(optimizeLoad ...bool) contracts.ServiceProvider {
+	return &ServiceProvider{
+		optimizeLoad: utils.DefaultBool(optimizeLoad, true),
+	}
 }
 
 func (provider *ServiceProvider) Register(application contracts.Application) {
@@ -25,7 +30,9 @@ func (provider *ServiceProvider) Register(application contracts.Application) {
 }
 
 func (provider *ServiceProvider) Start() error {
-	table.SetFactory(provider.app.Get("db.factory").(contracts.DBFactory))
+	if provider.optimizeLoad {
+		table.SetFactory(provider.app.Get("db.factory").(contracts.DBFactory))
+	}
 	return nil
 }
 

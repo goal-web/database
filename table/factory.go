@@ -4,10 +4,13 @@ import (
 	"github.com/goal-web/application"
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/querybuilder"
-	class2 "github.com/goal-web/supports/class"
+	"sync"
 )
 
-var factory contracts.DBFactory
+var (
+	factory contracts.DBFactory
+	mutex   sync.Mutex
+)
 
 func SetFactory(dbFactory contracts.DBFactory) {
 	factory = dbFactory
@@ -15,6 +18,8 @@ func SetFactory(dbFactory contracts.DBFactory) {
 
 func getFactory() contracts.DBFactory {
 	if factory == nil {
+		mutex.Lock()
+		defer mutex.Unlock()
 		factory = application.Get("db.factory").(contracts.DBFactory)
 	}
 	return factory
@@ -35,7 +40,7 @@ func getTable[T any](name string) *Table[T] {
 
 // Query 将使用默认 connection
 func Query[T any](name string) *Table[T] {
-	return getTable[T](name).SetClass(class2.Make[T]())
+	return getTable[T](name)
 }
 
 // NewQuery 将使用默认 connection
@@ -43,16 +48,14 @@ func NewQuery[T any](name string, factory InstanceFactory[T]) *Table[T] {
 	return getTable[T](name).SetFactory(factory)
 }
 
-func Class[T any](class contracts.Class[T], table string) *Table[T] {
-	return Query[T](table).SetClass(class)
-}
-
-func Auth[T contracts.Authenticatable](class contracts.Class[T], table, primaryKey string) contracts.QueryBuilder[T] {
-	return Query[T](table).SetClass(class).SetPrimaryKey(primaryKey)
+func Auth[T contracts.Authenticatable](f InstanceFactory[T], table, primaryKey string) contracts.QueryBuilder[T] {
+	return Query[T](table).SetFactory(f).SetPrimaryKey(primaryKey)
 }
 
 func ArrayQuery(name string) *Table[contracts.Fields] {
-	return getTable[contracts.Fields](name).SetClass(arrayClass[contracts.Fields]{})
+	return getTable[contracts.Fields](name).SetFactory(func(fields contracts.Fields) *contracts.Fields {
+		return &fields
+	})
 }
 
 // WithConnection 使用指定链接

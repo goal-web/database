@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/goal-web/collection"
 	"github.com/goal-web/contracts"
-	"reflect"
 )
 
 func (table *Table[T]) fetch(query string, bindings ...any) (contracts.Collection[*T], contracts.Exception) {
@@ -21,30 +20,7 @@ func (table *Table[T]) fetch(query string, bindings ...any) (contracts.Collectio
 	var list = make([]*T, rows.Len())
 
 	rows.Foreach(func(i int, fields contracts.Fields) {
-		if table.instanceFactory != nil {
-			list[i] = table.instanceFactory(fields)
-		} else {
-			item := table.class.NewByTag(fields, "db")
-			value := reflect.ValueOf(&item)
-
-			if value.Elem().Kind() == reflect.Struct {
-				model := value.Elem().FieldByName("Model")
-				if model.CanSet() {
-					_, isModel := model.Interface().(Model[T])
-					if isModel {
-						value.Elem().FieldByName("Model").Set(reflect.ValueOf(
-							Model[T]{
-								Class:           table.class,
-								Table:           table.table,
-								PrimaryKeyField: table.primaryKeyField,
-								Data:            &item,
-								Value:           value,
-							}))
-					}
-				}
-			}
-			list[i] = &item
-		}
+		list[i] = table.instanceFactory(fields)
 	})
 
 	return collection.New(list), nil

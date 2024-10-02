@@ -84,19 +84,33 @@ func init() {
 	})
 }
 
+var f = func(fields contracts.Fields) *User {
+	return &User{
+		Id:        utils.GetIntField(fields, "id"),
+		Name:      utils.GetStringField(fields, "name"),
+		Age:       utils.GetIntField(fields, "age"),
+		CreatedAt: utils.GetStringField(fields, "created_at"),
+		UpdatedAt: utils.GetStringField(fields, "updated_at"),
+	}
+}
+
+func UserQuery(name string) *table.Table[User] {
+	return table.Query[User](name).SetFactory(f)
+}
+
 func TestMysqlDatabaseService(t *testing.T) {
 
-	assert.True(t, table.Query[User](tableName).Count() == 0)
+	assert.True(t, UserQuery(tableName).Count() == 0)
 
-	user := table.Query[User](tableName).Create(contracts.Fields{
+	user := UserQuery(tableName).SetFactory(f).Create(contracts.Fields{
 		"name": "testing",
 	})
 	assert.NotNil(t, user)
 	assert.True(t, user.Name == "testing")
-	assert.True(t, table.Query[User](tableName).Count() == 1)
-	assert.True(t, table.Query[User](tableName).Get().Count() == 1)
-	table.Query[User](tableName).Where("name", "testing").Delete()
-	assert.True(t, table.Query[User](tableName).Count() == 0)
+	assert.True(t, UserQuery(tableName).Count() == 1)
+	assert.True(t, UserQuery(tableName).Get().Count() == 1)
+	UserQuery(tableName).Where("name", "testing").Delete()
+	assert.True(t, UserQuery(tableName).Count() == 0)
 
 }
 
@@ -168,7 +182,7 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	assert.NoError(t, err, err)
 	assert.True(t, count == 0)
 
-	user, exception := table.Query[User](tableName).CreateE(contracts.Fields{"name": "testing", "age": 18})
+	user, exception := UserQuery(tableName).CreateE(contracts.Fields{"name": "testing", "age": 18})
 	assert.NotNil(t, user)
 	assert.NoError(t, exception, exception)
 	assert.True(t, user.Name == "testing")
@@ -204,7 +218,7 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	})
 	assert.NoError(t, err, err)
 
-	user, exception = table.Query[User](tableName).CreateE(contracts.Fields{"name": "testing2", "age": 18})
+	user, exception = UserQuery(tableName).CreateE(contracts.Fields{"name": "testing2", "age": 18})
 	assert.NotNil(t, user)
 	assert.NoError(t, exception, exception)
 
@@ -236,53 +250,53 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	})
 	assert.NoError(t, err, err)
 
-	assert.NoError(t, table.Query[User](tableName).InsertE(contracts.Fields{"name": "testing3", "age": 18}), err)
+	assert.NoError(t, UserQuery(tableName).InsertE(contracts.Fields{"name": "testing3", "age": 18}), err)
 
-	id, err := table.Query[User](tableName).InsertGetIdE(contracts.Fields{"name": "testing4", "age": 18})
+	id, err := UserQuery(tableName).InsertGetIdE(contracts.Fields{"name": "testing4", "age": 18})
 	assert.NoError(t, err, err)
 	assert.True(t, id == int64(user.Id+2))
 
-	num, err := table.Query[User](tableName).InsertOrIgnoreE(contracts.Fields{"name": "testing5", "age": 18})
+	num, err := UserQuery(tableName).InsertOrIgnoreE(contracts.Fields{"name": "testing5", "age": 18})
 	assert.NoError(t, err, err)
 	assert.True(t, num > 0)
 
-	num, err = table.Query[User](tableName).InsertOrReplaceE(contracts.Fields{
+	num, err = UserQuery(tableName).InsertOrReplaceE(contracts.Fields{
 		"name": "testing6", "age": 18, "id": user.Id,
 	})
 	assert.NoError(t, err, err)
 	assert.True(t, num > 0)
-	user = table.Query[User](tableName).Find(user.Id)
+	user = UserQuery(tableName).Find(user.Id)
 	assert.NotNil(t, user)
 	assert.True(t, user.Name == "testing6")
 
-	num, err = table.Query[User](tableName).UpdateE(contracts.Fields{"age": 10})
+	num, err = UserQuery(tableName).UpdateE(contracts.Fields{"age": 10})
 	assert.NoError(t, err, err)
 	assert.True(t, num > 0)
-	user = table.Query[User](tableName).Find(user.Id)
+	user = UserQuery(tableName).Find(user.Id)
 	assert.NotNil(t, user)
 	assert.True(t, user.Age == 10)
 
 	var lastId = user.Id
-	num, err = table.Query[User](tableName).Where("id", user.Id).DeleteE()
+	num, err = UserQuery(tableName).Where("id", user.Id).DeleteE()
 	assert.NoError(t, err, err)
 	assert.True(t, num == 1)
-	user = table.Query[User](tableName).Find(user.Id)
+	user = UserQuery(tableName).Find(user.Id)
 	assert.Nil(t, user)
 
-	err = table.Query[User](tableName).UpdateOrInsertE(contracts.Fields{
+	err = UserQuery(tableName).UpdateOrInsertE(contracts.Fields{
 		"id": lastId,
 	}, contracts.Fields{
 		"name": "testing6",
 		"age":  8,
 	})
 	assert.NoError(t, err, err)
-	user = table.Query[User](tableName).Find(lastId)
+	user = UserQuery(tableName).Find(lastId)
 	assert.NotNil(t, user)
 	assert.True(t, user.Id == lastId)
 	assert.True(t, user.Age == 8)
 	assert.True(t, user.Name == "testing6")
 
-	user, err = table.Query[User](tableName).UpdateOrCreateE(contracts.Fields{
+	user, err = UserQuery(tableName).UpdateOrCreateE(contracts.Fields{
 		"id": lastId,
 	}, contracts.Fields{
 		"name": "testing6",
@@ -294,31 +308,31 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 	assert.True(t, user.Age == 18)
 	assert.True(t, user.Name == "testing6")
 
-	users, err := table.Query[User](tableName).SelectForUpdateE()
+	users, err := UserQuery(tableName).SelectForUpdateE()
 	assert.NoError(t, err, err)
 	assert.NotNil(t, users)
 	lastUser, _ := users.Last()
 	assert.True(t, lastUser.Age == 10)
 
-	assert.True(t, table.Query[User](tableName).Where("id", 0).FirstOr(func() *User {
+	assert.True(t, UserQuery(tableName).Where("id", 0).FirstOr(func() *User {
 		return user
 	}).Name == "testing6")
 
 	assert.Error(t, utils.NoPanic(func() {
-		assert.True(t, table.Query[User](tableName).Find(user.Id).Name == user.Name)
-		assert.True(t, table.Query[User](tableName).FirstWhere("id", user.Id).Name == user.Name)
-		tmpUser, tmpErr := table.Query[User](tableName).FirstWhereE("id", user.Id)
+		assert.True(t, UserQuery(tableName).Find(user.Id).Name == user.Name)
+		assert.True(t, UserQuery(tableName).FirstWhere("id", user.Id).Name == user.Name)
+		tmpUser, tmpErr := UserQuery(tableName).FirstWhereE("id", user.Id)
 		assert.NoError(t, tmpErr, tmpErr)
 		assert.True(t, tmpUser.Name == user.Name)
 
-		table.Query[User](tableName).Where("id", 0).FirstOrFail()
+		UserQuery(tableName).Where("id", 0).FirstOrFail()
 	}))
 
 	assert.True(t, table.ArrayQuery(tableName).Count() == 5)
-	list, total := table.Query[User](tableName).Paginate(2, 1)
+	list, total := UserQuery(tableName).Paginate(2, 1)
 	assert.True(t, table.ArrayQuery(tableName).Count() == total)
 	assert.True(t, list.Len() == 2)
-	assert.True(t, table.Query[User](tableName).SimplePaginate(2, 3).Len() == 1)
+	assert.True(t, UserQuery(tableName).SimplePaginate(2, 3).Len() == 1)
 
 	table.ArrayQuery(tableName).Delete()
 	assert.True(t, table.ArrayQuery(tableName).Count() == 0)

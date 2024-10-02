@@ -16,7 +16,6 @@ type Table[T any] struct {
 
 	table             string
 	primaryKeyField   string
-	class             contracts.Class[T]
 	createdTimeColumn string
 	UpdatedTimeColumn string
 
@@ -33,20 +32,10 @@ func (table *Table[T]) SetConnection(connection any) *Table[T] {
 	return table
 }
 
-// SetClass 设置类
-func (table *Table[T]) SetClass(class contracts.Class[T]) *Table[T] {
-	table.class = class
-	return table
-}
-
 // SetFactory 设置类
 func (table *Table[T]) SetFactory(factory InstanceFactory[T]) *Table[T] {
 	table.instanceFactory = factory
 	return table
-}
-
-func (table *Table[T]) GetClass() contracts.Class[T] {
-	return table.class
 }
 
 func (table *Table[T]) GetTable() string {

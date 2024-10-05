@@ -28,11 +28,14 @@ func getFactory() contracts.DBFactory {
 func getTable[T any](name string) *Table[T] {
 	builder := querybuilder.NewBuilder[T](name)
 	instance := &Table[T]{
-		Builder:           builder,
-		primaryKeyField:   "id",
-		table:             name,
-		createdTimeColumn: "created_at",
-		UpdatedTimeColumn: "updated_at",
+		Builder:              builder,
+		primaryKeyField:      "id",
+		table:                name,
+		createdTimeColumn:    "created_at",
+		UpdatedTimeColumn:    "updated_at",
+		relationCollectors:   map[contracts.RelationType]contracts.RelationCollector{},
+		foreignKeyCollectors: map[contracts.RelationType]contracts.ForeignKeysCollector[T]{},
+		relationSetters:      map[contracts.RelationType]contracts.RelationSetter[T]{},
 	}
 	builder.Bind(instance)
 	return instance

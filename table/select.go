@@ -3,6 +3,7 @@ package table
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/goal-web/collection"
 	"github.com/goal-web/contracts"
 )
@@ -18,10 +19,31 @@ func (table *Table[T]) fetch(query string, bindings ...any) (contracts.Collectio
 	}
 
 	var list = make([]*T, rows.Len())
+	var relationForeignKeys = make(map[contracts.RelationType][]any)
+	var relationForeignKeyMap = make(map[contracts.RelationType]map[any]*T)
 
 	rows.Foreach(func(i int, fields contracts.Fields) {
-		list[i] = table.instanceFactory(fields)
+		item := table.instanceFactory(fields)
+
+		for _, relation := range table.Withs {
+			relationForeignKeys[relation] = append(relationForeignKeys[relation], table.foreignKeyCollectors[relation](item))
+			if relationForeignKeyMap[relation] == nil {
+				relationForeignKeyMap[relation] = make(map[any]*T)
+			}
+			relationForeignKeyMap[relation][fmt.Sprintf("%v", table.foreignKeyCollectors[relation](item))] = item
+		}
+
+		list[i] = item
 	})
+
+	for relation, keys := range relationForeignKeys {
+		values := table.relationCollectors[relation](keys)
+
+		for key, value := range values {
+			item := relationForeignKeyMap[relation][key]
+			table.relationSetters[relation](item, value)
+		}
+	}
 
 	return collection.New(list), nil
 }

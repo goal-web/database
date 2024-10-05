@@ -20,6 +20,10 @@ type Table[T any] struct {
 	UpdatedTimeColumn string
 
 	instanceFactory InstanceFactory[T]
+
+	relationCollectors   map[contracts.RelationType]contracts.RelationCollector
+	foreignKeyCollectors map[contracts.RelationType]contracts.ForeignKeysCollector[T]
+	relationSetters      map[contracts.RelationType]contracts.RelationSetter[T]
 }
 
 // SetConnection 参数要么是 contracts.DBConnection 要么是 string
@@ -35,6 +39,29 @@ func (table *Table[T]) SetConnection(connection any) *Table[T] {
 // SetFactory 设置类
 func (table *Table[T]) SetFactory(factory InstanceFactory[T]) *Table[T] {
 	table.instanceFactory = factory
+	return table
+}
+
+// SetRelation 设置关联关系
+func (table *Table[T]) SetRelation(
+	relation contracts.RelationType,
+	collector contracts.ForeignKeysCollector[T],
+	relationCollector contracts.RelationCollector,
+	setter contracts.RelationSetter[T],
+) *Table[T] {
+	table.foreignKeyCollectors[relation] = collector
+	table.relationCollectors[relation] = relationCollector
+	table.relationSetters[relation] = setter
+	return table
+}
+
+// SetByRelation 设置关联关系
+func (table *Table[T]) SetByRelation(
+	relation contracts.Relation[any, T],
+) *Table[T] {
+	table.foreignKeyCollectors[relation.GetRelation()] = relation.GetForeignKeysCollector()
+	table.relationCollectors[relation.GetRelation()] = relation.GetRelationCollector()
+	table.relationSetters[relation.GetRelation()] = relation.GetRelationSetter()
 	return table
 }
 

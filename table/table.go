@@ -100,8 +100,14 @@ func (table *Table[T]) getExecutor() contracts.SqlExecutor {
 }
 
 // SetExecutor 参数必须是 contracts.DBTx 实例
-func (table *Table[T]) SetExecutor(executor contracts.SqlExecutor) contracts.QueryBuilder[T] {
+func (table *Table[T]) SetExecutor(executor contracts.SqlExecutor) *Table[T] {
 	table.executor = executor
+	return table
+}
+
+// SetWiths 初始化关联查询
+func (table *Table[T]) SetWiths(withs ...contracts.RelationType) *Table[T] {
+	table.With(withs...)
 	return table
 }
 

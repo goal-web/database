@@ -16,13 +16,14 @@ type Mysql struct {
 func MysqlConnector(config contracts.Fields, events contracts.EventDispatcher) contracts.DBConnection {
 	dsn := utils.GetStringField(config, "unix_socket")
 	if dsn == "" {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s%s",
 			utils.GetStringField(config, "username"),
 			utils.GetStringField(config, "password"),
 			utils.GetStringField(config, "host"),
 			utils.GetStringField(config, "port"),
 			utils.GetStringField(config, "database"),
 			utils.GetStringField(config, "charset"),
+			utils.GetStringField(config, "other"),
 		)
 	}
 	db, err := sqlx.Connect("mysql", dsn)

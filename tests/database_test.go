@@ -2,6 +2,8 @@ package tests
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/goal-web/application"
 	"github.com/goal-web/config"
 	"github.com/goal-web/contracts"
@@ -10,7 +12,6 @@ import (
 	"github.com/goal-web/supports/exceptions"
 	"github.com/goal-web/supports/utils"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type User struct {
@@ -24,7 +25,7 @@ type User struct {
 var tableName string
 
 func init() {
-	app := application.Singleton()
+	app := application.Default()
 
 	tableName = "test_" + utils.RandStr(10)
 
@@ -51,7 +52,7 @@ func init() {
 							"port":            "3306",
 							"database":        "goal",
 							"username":        "root",
-							"password":        "123456",
+							"password":        "root",
 							"charset":         env.StringOptional("db.charset", "utf8mb4"),
 							"collation":       env.StringOptional("db.collation", "utf8mb4_unicode_ci"),
 							"prefix":          env.GetString("db.prefix"),
@@ -126,7 +127,7 @@ func TestMysqlDatabaseWithoutApplication(t *testing.T) {
 					"port":      "3306",
 					"database":  "goal",
 					"username":  "root",
-					"password":  "123456",
+					"password":  "root",
 					"charset":   "utf8mb4",
 					"collation": "utf8mb4_unicode_ci",
 				},
@@ -163,7 +164,7 @@ func TestMysqlDatabaseFeature(t *testing.T) {
 					"port":      "3306",
 					"database":  "goal",
 					"username":  "root",
-					"password":  "123456",
+					"password":  "root",
 					"charset":   "utf8mb4",
 					"collation": "utf8mb4_unicode_ci",
 				},

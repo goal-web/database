@@ -4,21 +4,28 @@ go 1.25.0
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.0.9
+	github.com/dromara/carbon/v2 v2.6.15
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/golang-module/carbon/v2 v2.3.12
+	github.com/goal-web/application v0.5.4
+	github.com/goal-web/collection v0.5.3
+	github.com/goal-web/config v0.5.15
+	github.com/goal-web/contracts v0.5.4
+	github.com/goal-web/querybuilder v0.5.5
+	github.com/goal-web/supports v0.5.12
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.4
 	github.com/mattn/go-sqlite3 v1.14.10
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
-	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/apex/log v1.9.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/goal-web/container v0.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/modood/table v0.0.0-20200225102042-88de94bb9876 // indirect
+	github.com/modood/table v0.0.0-20220527013332-8d47e76dad33 // indirect
 	github.com/paulmach/orb v0.4.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
